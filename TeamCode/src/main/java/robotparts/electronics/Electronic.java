@@ -1,6 +1,8 @@
 package robotparts.electronics;
 
 
+import utility.MainThreadAccess;
+
 public abstract class Electronic {
     /**
      * Naming conventions for electronics
@@ -14,7 +16,8 @@ public abstract class Electronic {
     /**
      * Access represents the access the user has to use the electronic
      */
-    protected final Access access = new Access();
+    protected final MainThreadAccess access = new MainThreadAccess();
+
 
     /**
     /**

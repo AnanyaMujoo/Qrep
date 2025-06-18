@@ -1,23 +1,24 @@
 package robotparts.electronics;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 public class Motor extends Electronic {
     /**
      * DcMotor object since its continuous
      */
-    private final DcMotor motor;
-    private final IEncoder motorEncoder;
+    private final DcMotorEx motor;
+    private final Encoder motorEncoder;
     /**
      * Constructor with parameters
      * @param m
      * @param dir
      * @param zpb
      */
-    public Motor(DcMotor m, DcMotor.Direction dir, DcMotor.ZeroPowerBehavior zpb){
+    public Motor(DcMotorEx m, DcMotor.Direction dir, DcMotor.ZeroPowerBehavior zpb){
         motor = m;
-        motorEncoder = new IEncoder(motor, IEncoder.EncoderType.CMOTOR);
+        motorEncoder = new Encoder(motor, Encoder.EncoderType.CMOTOR);
         motor.setDirection(dir);
         motor.setZeroPowerBehavior(zpb);
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -41,7 +42,7 @@ public class Motor extends Electronic {
      * @param p
      */
     public void setPower(double p){
-        if(access.isAllowed()){
+        if(access.doesMainThreadHaveAccess()){
             if(!detector.isStalling()){
                 motor.setPower(Precision.clip(p, 1)*voltageScale);
             }else{
@@ -62,7 +63,7 @@ public class Motor extends Electronic {
         return direction;
     }
 
-    public IEncoder getMotorEncoder(){ return motorEncoder; }
+    public Encoder getMotorEncoder(){ return motorEncoder; }
 
     /**
      * Sets the power of the motor to 0
