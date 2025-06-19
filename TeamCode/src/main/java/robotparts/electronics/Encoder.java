@@ -48,7 +48,7 @@ public class Encoder extends Electronic {
 //TODO the resetting bug we need to fix
     public void updatePosition(){
         position = (invertedOutput? -1:1)* motor.getCurrentPosition();
-        //ternary operator (if/else condemned)
+        //ternary operator (if/else condemned) ww
     }
 
 
