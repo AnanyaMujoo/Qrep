@@ -28,7 +28,7 @@ public abstract class Electronic {
     /**
      * Halt the electronic (Used to stop motors)
      */
-    public void halt(){}
+    public void stop(){}
 
 
 }
