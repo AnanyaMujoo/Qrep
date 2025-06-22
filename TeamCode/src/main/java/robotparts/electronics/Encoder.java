@@ -45,14 +45,15 @@ public class Encoder extends Electronic {
         this.invertedOutput = invertedOutput;
 
     }
-//TODO the resetting bug we need to fix
     public void updatePosition(){
-        position = (invertedOutput? -1:1)* motor.getCurrentPosition();
+        position = motor.getCurrentPosition();
         //ternary operator (if/else condemned) ww
     }
 
 
-    public double getPosition() { return position - startPosition; }
+    public double getPosition() {
+        return (invertedOutput? -1:1)*(position - startPosition);
+    }
 
     /**
      * Get the type of encoder
