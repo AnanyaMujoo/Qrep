@@ -8,7 +8,7 @@ public class Motor extends Electronic {
     /**
      * DcMotor object since its continuous
      */
-    private final DcMotorEx motor;
+    protected final DcMotorEx motor;
     /**
      * Constructor with parameters
      * @param m
