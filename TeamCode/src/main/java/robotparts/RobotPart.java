@@ -3,6 +3,7 @@ package robotparts;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
@@ -13,9 +14,11 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
+import global.Common;
 import robotparts.electronics.Electronic;
+import robotparts.electronics.Motor;
 
-public class RobotPart {
+public class RobotPart implements Common {
 
 
     private Electronic createFromType(String name, ElectronicType type){
@@ -68,5 +71,10 @@ public class RobotPart {
                 fault.check("Electronic creation does not match any known type", Expectation.INCONCEIVABLE, Magnitude.CATASTROPHIC);
                 return null;
         }
+    }
+    public Motor createMotor(String name, DcMotor.Direction dir, DcMotor.ZeroPowerBehavior zp){
+        return new Motor(hardwareMap.get().get(DcMotorEx.class, name),dir,zp);
+
+
     }
 }

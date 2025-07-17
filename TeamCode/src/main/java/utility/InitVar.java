@@ -10,9 +10,15 @@ public class InitVar <T> {
         isInitialized = true;
     }
     public T get(){
+        if (isInitialized()){
         return object;
+        }
+        else {
+            //TODO PUT THE FAULT
+            throw new RuntimeException("lil bot u didnt set bro tried to get without set");
+        }
     }
-    public boolean getIsInitialized(){
+    public boolean isInitialized(){
         return isInitialized;
     }
     public void reset(){
