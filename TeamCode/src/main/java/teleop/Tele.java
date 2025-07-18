@@ -3,6 +3,7 @@ package teleop;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import global.Common;
 import global.Initializer;
+import robotparts.RobotConfig;
 
 public abstract class Tele extends OpMode implements Initializer {
     public abstract void initTele();

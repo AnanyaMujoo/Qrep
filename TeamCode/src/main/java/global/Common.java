@@ -1,21 +1,5 @@
 package global;
 
-import static global.General.bot;
-import static global.General.cameraMonitorViewId;
-import static global.General.fault;
-import static global.General.gameTime;
-import static global.General.gamepad1;
-import static global.General.gamepad2;
-import static global.General.gph1;
-import static global.General.gph2;
-import static global.General.hardwareMap;
-import static global.General.log;
-import static global.General.mainUser;
-import static global.General.storage;
-import static global.General.sync;
-import static global.General.telemetry;
-import static global.General.voltageScale;
-
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
