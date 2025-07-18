@@ -27,7 +27,7 @@ public class MotorWithEncoder extends Motor {
     }
     //TODO MAKE METHODS OT MANUAL ADJUST LLIL BUD
 
-    public MotorWithEncoder setParameters(double snapToZeroPower, double snapToZeroDistance, double pulleyRadius, double motorToPulleyGearRatio, double angleToVertical, double ticksPerRevolution) {
+    public MotorWithEncoder setParameters(double snapToZeroPower, double snapToZeroDistance, double pulleyRadius, double motorToPulleyGearRatio) {
         this.distanceToTicks =  (1/(2 * Math.PI * pulleyRadius)) * Constants.ORBITAL_ENCODER_TICKS_PER_REVOLUTION * (motorToPulleyGearRatio);
         properlyInitializedWithParameters = true;
         positionHolder.initializePositionHolder(this, snapToZeroPower, snapToZeroDistance);

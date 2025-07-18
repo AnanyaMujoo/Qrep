@@ -2,12 +2,15 @@ package global;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import java.util.ArrayList;
+
 public interface Initializer extends Common{
     default void _init(OpMode thisOpMode) {
         hardwareMap.set(thisOpMode.hardwareMap);
         telemetry.set(thisOpMode.telemetry);
         gamepad1.set(thisOpMode.gamepad1);
         gamepad2.set(thisOpMode.gamepad2);
+        allRobotParts.set(new ArrayList<>());
 //        gameTime = new ElapsedTime();
 //        gph1 = new GamepadHandler(gamepad1);
 //        gph2 = new GamepadHandler(gamepad2);
@@ -21,6 +24,7 @@ public interface Initializer extends Common{
 //        bot = new TerraBot();
 //        bot.init();
     }
+    //TODO make an auto-initializer that creates the robot parts
 
     default void _start() {
 //        bot.start();

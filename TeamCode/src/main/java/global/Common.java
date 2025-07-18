@@ -23,6 +23,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+import java.util.ArrayList;
+
+import robotparts.RobotPart;
 import utility.InitVar;
 
 public interface Common {
@@ -31,7 +34,7 @@ public interface Common {
     InitVar<Telemetry> telemetry = new InitVar<>();
     InitVar<Gamepad> gamepad1 = new InitVar<>();
     InitVar<Gamepad> gamepad2 = new InitVar<>();
-
+    InitVar<ArrayList<RobotPart>> allRobotParts = new InitVar<>();
 //    public static ElapsedTime gameTime;
 //    public static Fault fault;
 //    public static GamepadHandler gph1;
