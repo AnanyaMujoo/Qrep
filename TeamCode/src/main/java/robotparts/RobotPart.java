@@ -22,7 +22,9 @@ import robotparts.electronics.MotorWithEncoder;
 public abstract class RobotPart implements Common {
 
     public abstract void init();
-
+    public RobotPart(){
+        allRobotParts.get().add(this);
+    }
 //    private Electronic createFromType(String name, ElectronicType type) {
 //        switch (type) {
 //            case CMOTOR_FORWARD:

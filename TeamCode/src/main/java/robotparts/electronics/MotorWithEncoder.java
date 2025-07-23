@@ -25,7 +25,6 @@ public class MotorWithEncoder extends Motor {
         powerScale.set(0);
         positionHolder = new PositionHolder();
     }
-    //TODO MAKE METHODS OT MANUAL ADJUST LLIL BUD
 
     public MotorWithEncoder setParameters(double snapToZeroPower, double snapToZeroDistance, double pulleyRadius, double motorToPulleyGearRatio) {
         this.distanceToTicks =  (1/(2 * Math.PI * pulleyRadius)) * Constants.ORBITAL_ENCODER_TICKS_PER_REVOLUTION * (motorToPulleyGearRatio);
@@ -61,7 +60,6 @@ public class MotorWithEncoder extends Motor {
 
 
     //TODO we want to make a method to move the lift in increments and have position holder always running, and it updates the tagret based on manual joystick/dpad
-    //TODO everyone commanding posiition holder
 
     public final void setTarget(double target, double power){
         motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);

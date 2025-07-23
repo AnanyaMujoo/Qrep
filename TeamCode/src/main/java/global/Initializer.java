@@ -4,6 +4,9 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import java.util.ArrayList;
 
+import robotparts.RobotConfig;
+import utility.AutoInstantiate;
+
 public interface Initializer extends Common{
     default void _init(OpMode thisOpMode) {
         hardwareMap.set(thisOpMode.hardwareMap);
@@ -11,6 +14,8 @@ public interface Initializer extends Common{
         gamepad1.set(thisOpMode.gamepad1);
         gamepad2.set(thisOpMode.gamepad2);
         allRobotParts.set(new ArrayList<>());
+        AutoInstantiate.initializeStaticFields(RobotConfig.class);
+
 //        gameTime = new ElapsedTime();
 //        gph1 = new GamepadHandler(gamepad1);
 //        gph2 = new GamepadHandler(gamepad2);
@@ -24,7 +29,6 @@ public interface Initializer extends Common{
 //        bot = new TerraBot();
 //        bot.init();
     }
-    //TODO make an auto-initializer that creates the robot parts
 
     default void _start() {
 //        bot.start();

@@ -7,13 +7,11 @@ public class TestOp extends Tele {
 
     @Override
     public void initTele() {
-        drive = new Drive();
-
-        drive.move(2,22111112,22222);
     }
 
     @Override
     public void loopTele() {
+        drive.move(0.2,0.3,0.4);
 
     }
 }
