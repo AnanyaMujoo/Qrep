@@ -43,13 +43,11 @@ public class GamepadHandler implements Common {
 //    }};
 
     //public TreeMap<Button, ButtonHandler> handlerMap = new TreeMap<>();
-
+//list of all ways we want to use button: press and it runs on first press, runs continuesly as you press, runs on double click, runs continuely on press then stops on click again
     public double ry, rx, ly, lx, rt, lt;
 
     public GamepadHandler(Gamepad gp) {
-        gamepad = gp;
-        precision.reset();
-        defineAllButtons();
+        this.gamepad = gp;
     }
 //TODO finish Button Handler
     public void link(Button b, Runnable code){ link(b, code, Modes.GamepadMode.NORMAL); }
@@ -83,16 +81,6 @@ public class GamepadHandler implements Common {
             case AUTOMATED: Objects.requireNonNull(handlerMap.get(b)).addEvent(type, codeSeg, () -> isBackPressedForTime); break;
         }
     }
-
-    public void unlinkAll() {
-        handlerMap = new TreeMap<>();
-        defineAllButtons();
-    }
-
-    public void defineAllButtons() {
-        Iterator.forAll(Button.values(), b -> handlerMap.put(b, new ButtonHandler(b, this)));
-    }
-
     private void updateValues(){
         ry = -gamepad.right_stick_y;
         rx = gamepad.right_stick_x;
