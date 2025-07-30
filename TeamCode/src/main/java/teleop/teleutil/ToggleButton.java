@@ -2,17 +2,23 @@ package teleop.teleutil;
 
 import java.util.function.Supplier;
 
-public class OnceButton extends PressButton{
-    public OnceButton(Supplier<Boolean> buttonSupplier, Runnable action) {
+public class ToggleButton extends OnceButton{
+    protected boolean on;
+    public ToggleButton(Supplier<Boolean> buttonSupplier, Runnable action) {
         super(buttonSupplier, action);
+        on = false;
     }
     public void update() { //called in the while loop (teleop)
         boolean currentState = isPressed();
         if (!getLastButtonState() && currentState) {
-            action.run();
+            on = !on; //reverses the proccess
         }
         lastButtonState = currentState;
-        //currentState so we limit use of button supplier (with isPressed)
+        if (on) {
+            action.run();
+
+        }
     }
+    //Runs if it was clicked
 }
-//TODO FINISH AND TOGGLE
+
