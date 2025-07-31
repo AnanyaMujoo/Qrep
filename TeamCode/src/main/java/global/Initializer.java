@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import java.util.ArrayList;
 
 import robotparts.RobotConfig;
+import robotparts.RobotPart;
 import utility.AutoInstantiate;
 
 public interface Initializer extends Common{
@@ -15,7 +16,8 @@ public interface Initializer extends Common{
         gamepad2.set(thisOpMode.gamepad2);
         allRobotParts.set(new ArrayList<>());
         AutoInstantiate.initializeStaticFields(RobotConfig.class);
-
+        allRobotParts.get().forEach(RobotPart::init);
+        //
 //        gameTime = new ElapsedTime();
 //        gph1 = new GamepadHandler(gamepad1);
 //        gph2 = new GamepadHandler(gamepad2);

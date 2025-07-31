@@ -19,6 +19,7 @@ public interface Common {
     InitVar<Gamepad> gamepad1 = new InitVar<>();
     InitVar<Gamepad> gamepad2 = new InitVar<>();
     InitVar<ArrayList<RobotPart>> allRobotParts = new InitVar<>();
+
 //    public static ElapsedTime gameTime;
 //    public static Fault fault;
 //    public static GamepadHandler gph1;
