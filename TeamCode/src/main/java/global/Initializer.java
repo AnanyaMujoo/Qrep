@@ -55,5 +55,3 @@ public interface Initializer extends Common{
 //        storage.saveItems();
     }
 }
-
-//TODO need an interface for some object that acts like an interfae\c

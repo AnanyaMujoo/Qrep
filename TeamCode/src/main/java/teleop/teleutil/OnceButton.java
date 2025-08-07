@@ -15,4 +15,3 @@ public class OnceButton extends PressButton{
         //currentState so we limit use of button supplier (with isPressed)
     }
 }
-//TODO FINISH AND TOGGLE
