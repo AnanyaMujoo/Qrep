@@ -3,13 +3,13 @@ package utility;
 import static global.Common.allThreads;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public abstract class Thread extends java.lang.Thread {
+public abstract class ThreadBase extends java.lang.Thread {
 
     private final double updateRate;
     private final AtomicBoolean isRunning;
     private final AtomicBoolean wasExceptionThrown;
 
-    public Thread(double updateRate){
+    public ThreadBase(double updateRate){
         this.updateRate = updateRate;
         this.isRunning = new AtomicBoolean(true);
         this.wasExceptionThrown = new AtomicBoolean(false);
