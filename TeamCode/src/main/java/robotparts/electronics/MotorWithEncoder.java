@@ -54,16 +54,17 @@ public class MotorWithEncoder extends Motor {
     }
 
     public void softResetEncoder(){
-        encoder.softReset();}
+        encoder.softReset();
+    }
     public void hardResetEncoder(){
-        encoder.hardReset();}
+        encoder.hardReset();
+    }
 
 
     //TODO we want to make a method to move the lift in increments and have position holder always running, and it updates the tagret based on manual joystick/dpad
 
     public final void setTarget(double target, double power){
         motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
         motor.setTargetPosition(
                 (int) (target*distanceToTicks)
         );

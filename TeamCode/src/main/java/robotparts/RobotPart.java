@@ -1,18 +1,9 @@
 package robotparts;
 
-import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
-import com.qualcomm.robotcore.hardware.IMU;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.TouchSensor;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.openftc.easyopencv.OpenCvCameraRotation;
+import java.util.ArrayList;
 
 import global.Common;
 import robotparts.electronics.Electronic;
@@ -21,8 +12,11 @@ import robotparts.electronics.MotorWithEncoder;
 
 public abstract class RobotPart implements Common {
 
+    private final ArrayList<Electronic> electronics;
+
     public abstract void init();
     public RobotPart(){
+        electronics = new ArrayList<>();
         allRobotParts.get().add(this);
     }
 //    private Electronic createFromType(String name, ElectronicType type) {
@@ -77,18 +71,26 @@ public abstract class RobotPart implements Common {
 //        }
 //    }
 
-    public Motor createMotor(String name, DcMotor.Direction dir, DcMotor.ZeroPowerBehavior zp) {
-        return new Motor(hardwareMap.get().get(DcMotorEx.class, name), dir, zp);
+    private <T extends Electronic> T addElectronic(T electronic){
+        electronics.add(electronic);
+        return electronic;
     }
-
+    public Motor createMotor(String name, DcMotor.Direction dir, DcMotor.ZeroPowerBehavior zp) {
+        return addElectronic(new Motor(hardwareMap.get().get(DcMotorEx.class, name), dir, zp));
+    }
     public Motor createMotor(String name, DcMotor.Direction dir) {
-        return new Motor(hardwareMap.get().get(DcMotorEx.class, name), dir, DcMotor.ZeroPowerBehavior.FLOAT);
+        return addElectronic(new Motor(hardwareMap.get().get(DcMotorEx.class, name), dir, DcMotor.ZeroPowerBehavior.FLOAT));
     }
     public MotorWithEncoder createMotorWithEncoder(String name, DcMotor.Direction dir, DcMotor.ZeroPowerBehavior zpb, boolean invertedEncoder){
-        return new MotorWithEncoder(hardwareMap.get().get(DcMotorEx.class, name), dir, zpb, invertedEncoder);
+        return addElectronic(new MotorWithEncoder(hardwareMap.get().get(DcMotorEx.class, name), dir, zpb, invertedEncoder));
     }
     public MotorWithEncoder createMotorWithEncoder(String name, DcMotor.Direction dir) {
-        return new MotorWithEncoder(hardwareMap.get().get(DcMotorEx.class, name), dir, DcMotor.ZeroPowerBehavior.BRAKE, false);
+        return addElectronic(new MotorWithEncoder(hardwareMap.get().get(DcMotorEx.class, name), dir, DcMotor.ZeroPowerBehavior.BRAKE, false));
     }
+
+    public void takeAccessFromMainThread(){ electronics.forEach(Electronic::takeAccessFromMainThread); }
+    public void returnAccessToMainThread(){ electronics.forEach(Electronic::returnAccessToMainThread); }
+    public void stop(){ electronics.forEach(Electronic::stop);}
+    public void stopAndReturnAccessToMainThread(){ stop(); returnAccessToMainThread(); }
 
 }

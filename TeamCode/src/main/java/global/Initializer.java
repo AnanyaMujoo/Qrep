@@ -8,10 +8,13 @@ import chains.ChainThread;
 import robotparts.RobotConfig;
 import robotparts.RobotPart;
 import utility.AutoInstantiate;
+import utility.MainThreadAccess;
 import utility.ThreadBase;
 
 public interface Initializer extends Common, Log {
     default void _init(OpMode thisOpMode) {
+        mainThread.set(Thread.currentThread());
+
         telemetry.set(thisOpMode.telemetry);
         displayAndUpdateTelemetry("Status", "Initializing...");
 

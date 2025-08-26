@@ -25,4 +25,6 @@ public interface Log extends Common {
         display(message, value);
         updateTelemetry();
     }
+
+    // TODO FIX DISPLAY WITH THREADS
 }

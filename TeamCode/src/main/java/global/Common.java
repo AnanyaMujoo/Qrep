@@ -22,6 +22,7 @@ public interface Common {
     InitVar<Gamepad> gamepad2 = new InitVar<>();
     InitVar<ArrayList<RobotPart>> allRobotParts = new InitVar<>();
     InitVar<ArrayList<ThreadBase>> allThreads = new InitVar<>();
+    InitVar<Thread> mainThread = new InitVar<>();
     InitVar<ChainThread> chainThread = new InitVar<>();
 
 

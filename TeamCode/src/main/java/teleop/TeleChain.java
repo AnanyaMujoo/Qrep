@@ -7,8 +7,8 @@ public interface TeleChain {
     Chain Test = new Chain(
             new Stage(
                     () -> {},
-                    () -> {},
                     () -> true,
+                    () -> {},
                     () -> {},
                     () -> {}
             )

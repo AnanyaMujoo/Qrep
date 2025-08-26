@@ -32,8 +32,8 @@ public class Motor extends Electronic {
      * @param p
      */
     public void setPower(double p){
-        if(access.doesMainThreadHaveAccess()){
-                motor.setPower(p);
+        if(access.doesCurrentThreadHaveAccess()){
+            motor.setPower(p);
         }
     }
 
