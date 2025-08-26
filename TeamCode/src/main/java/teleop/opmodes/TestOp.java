@@ -1,24 +1,28 @@
 package teleop.opmodes;
-import static robotparts.RobotConfig.drive;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import teleop.Tele;
 import teleop.teleutil.Button;
 
-@TeleOp(name="TestOp")
+@TeleOp
 public class TestOp extends Tele {
+
+
+
+
     @Override
     public void initTele() {
 
-        gpA.pressMode(Button.A, () -> drive.move(0.1,0.3,0.4));
-        gpA.onceMode(Button.B, Test);
+//        gpA.onceMode(Button.B, Test);
     }
 
 
     @Override
     public void loopTele() {
-        drive.move(0.2,0.3,0.4);
+
+//        display("A: Press Mode");
+//        drive.move(0.2,0.3,0.4);
 
 
 

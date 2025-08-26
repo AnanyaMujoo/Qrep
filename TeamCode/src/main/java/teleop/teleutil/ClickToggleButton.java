@@ -2,9 +2,9 @@ package teleop.teleutil;
 
 import java.util.function.Supplier;
 
-public class DoubleOnceButton extends ToggleButton {
-    private Runnable action2;
-    public DoubleOnceButton(Supplier<Boolean> buttonSupplier, Runnable action1, Runnable action2) {
+public class ClickToggleButton extends ToggleButton {
+    private final Runnable action2;
+    public ClickToggleButton(Supplier<Boolean> buttonSupplier, Runnable action1, Runnable action2) {
         super(buttonSupplier, action1);
         this.action2 = action2;
     }

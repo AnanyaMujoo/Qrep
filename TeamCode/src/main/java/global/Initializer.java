@@ -10,15 +10,19 @@ import robotparts.RobotPart;
 import utility.AutoInstantiate;
 import utility.ThreadBase;
 
-public interface Initializer extends Common{
+public interface Initializer extends Common, Log {
     default void _init(OpMode thisOpMode) {
-        hardwareMap.set(thisOpMode.hardwareMap);
         telemetry.set(thisOpMode.telemetry);
+        displayAndUpdateTelemetry("Status", "Initializing...");
+
+
+        hardwareMap.set(thisOpMode.hardwareMap);
         gamepad1.set(thisOpMode.gamepad1);
         gamepad2.set(thisOpMode.gamepad2);
         allRobotParts.set(new ArrayList<>());
         AutoInstantiate.initializeStaticFields(RobotConfig.class);
         allRobotParts.get().forEach(RobotPart::init);
+        allThreads.set(new ArrayList<>());
         chainThread.set(new ChainThread(Constants.CHAIN_THREAD_REFRESH_RATE));
         allThreads.get().forEach(ThreadBase::start);
 
@@ -35,6 +39,7 @@ public interface Initializer extends Common{
 //        storage = new Storage();
 //        bot = new TerraBot();
 //        bot.init();
+        displayAndUpdateTelemetry("Status", "Ready");
     }
 
     default void _start() {
@@ -44,7 +49,7 @@ public interface Initializer extends Common{
 //        log.clearTelemetry();
     }
 
-    default void _loop(boolean showTelemetry) {
+    default void _loop() {
 //        bot.update();
 //        gph1.run();
 //        gph2.run();
@@ -53,6 +58,7 @@ public interface Initializer extends Common{
 //            log.showTelemetry();
 //        }
         allThreads.get().forEach(ThreadBase::checkForExceptionAndTellMainThread);
+        updateTelemetry();
     }
 
     default void _stop() {
@@ -61,5 +67,6 @@ public interface Initializer extends Common{
 //        sync.logDelay();
 //        log.showLogs();
 //        storage.saveItems();
+        displayAndUpdateTelemetry("Status", "Stopped");
     }
 }

@@ -1,9 +1,12 @@
 package teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
 import global.Common;
 import global.Initializer;
 import teleop.teleutil.GamepadHandler;
+
 
 public abstract class Tele extends OpMode implements Initializer, TeleChain {
     public GamepadHandler gpA;
@@ -36,7 +39,7 @@ public abstract class Tele extends OpMode implements Initializer, TeleChain {
         loopTele();
         gpA.updateButtonEvents();
         gpB.updateButtonEvents();
-        _loop(true);
+        _loop();
     }
 
     @Override

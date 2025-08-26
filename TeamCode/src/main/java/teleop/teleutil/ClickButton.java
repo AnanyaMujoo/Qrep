@@ -2,8 +2,8 @@ package teleop.teleutil;
 
 import java.util.function.Supplier;
 
-public class OnceButton extends PressButton{
-    public OnceButton(Supplier<Boolean> buttonSupplier, Runnable action) {
+public class ClickButton extends PressButton{
+    public ClickButton(Supplier<Boolean> buttonSupplier, Runnable action) {
         super(buttonSupplier, action);
     }
     public void update() { //called in the while loop (teleop)

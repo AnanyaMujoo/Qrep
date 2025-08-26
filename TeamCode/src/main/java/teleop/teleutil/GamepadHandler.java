@@ -4,8 +4,6 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Objects;
-import java.util.TreeMap;
 import java.util.function.Supplier; // Used for ReturnCodeSeg replacement
 import java.lang.Runnable; // Used for CodeSeg replacement
 
@@ -44,24 +42,20 @@ public class GamepadHandler implements Common {
         buttonEventList.add(event);
     }
 
-    public void pressMode(Button button, Runnable code) {
+    public void onPress(Button button, Runnable code) {
         addButtonEvent(new PressButton(pressedMap.get(button), code));
-        ;
     }
 
-    public void onceMode(Button button, Runnable code) {
-        addButtonEvent(new OnceButton(pressedMap.get(button), code));
-        ;
+    public void onClick(Button button, Runnable code) {
+        addButtonEvent(new ClickButton(pressedMap.get(button), code));
     }
 
-    public void toggleMode(Button button, Runnable code) {
+    public void onPressToggle(Button button, Runnable code) {
         addButtonEvent(new ToggleButton(pressedMap.get(button), code));
-        ;
     }
 
-    public void doubleOnceMode(Button button, Runnable code1, Runnable code2) {
-        addButtonEvent(new DoubleOnceButton(pressedMap.get(button), code1, code2));
-        ;
+    public void onClickToggle(Button button, Runnable code1, Runnable code2) {
+        addButtonEvent(new ClickToggleButton(pressedMap.get(button), code1, code2));
     }
 
     public void updateButtonEvents() {

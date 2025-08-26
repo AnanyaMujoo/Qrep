@@ -2,7 +2,7 @@ package teleop.teleutil;
 
 import java.util.function.Supplier;
 
-public class ToggleButton extends OnceButton{
+public class ToggleButton extends ClickButton {
     protected boolean on;
     public ToggleButton(Supplier<Boolean> buttonSupplier, Runnable action) {
         super(buttonSupplier, action);
