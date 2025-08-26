@@ -9,8 +9,10 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import java.util.ArrayList;
 
+import chains.ChainThread;
 import robotparts.RobotPart;
 import utility.InitVar;
+import utility.ThreadBase;
 
 public interface Common {
 //    public static Qbot bot;
@@ -19,7 +21,8 @@ public interface Common {
     InitVar<Gamepad> gamepad1 = new InitVar<>();
     InitVar<Gamepad> gamepad2 = new InitVar<>();
     InitVar<ArrayList<RobotPart>> allRobotParts = new InitVar<>();
-    InitVar<ArrayList<Thread>> allThreads = new InitVar<>();
+    InitVar<ArrayList<ThreadBase>> allThreads = new InitVar<>();
+    InitVar<ChainThread> chainThread = new InitVar<>();
 
 
 //    public static ElapsedTime gameTime;

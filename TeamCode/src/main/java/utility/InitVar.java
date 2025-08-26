@@ -20,6 +20,8 @@ public class InitVar <T> {
     public boolean isInitialized(){
         return isInitialized;
     }
+
+    // might not be nessesary
     public void reset(){
         object = null;
         isInitialized = false;

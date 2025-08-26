@@ -34,7 +34,7 @@ public abstract class ThreadBase extends java.lang.Thread {
             }
         }
     }
-    private void checkForExceptionAndTellMainThread(){
+    public void checkForExceptionAndTellMainThread(){
         if(wasExceptionThrown.get()){
            // fault.warn("Exception thrown from inside thread " + name, Expectation.SURPRISING, Magnitude.CATASTROPHIC);
         }

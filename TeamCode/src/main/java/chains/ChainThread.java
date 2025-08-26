@@ -1,20 +1,19 @@
-package automodules;
+package chains;
 
-import java.util.LinkedList;
-import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import utility.ThreadBase;
 
-public class AutomoduleThread extends ThreadBase {
+public class ChainThread extends ThreadBase {
 
-    private Stage currentStage = null;
+    private Stage currentStage;
     private final ConcurrentLinkedQueue<Stage> stageQueue;
 
 
-    public AutomoduleThread(double updateRate) {
+    public ChainThread(double updateRate) {
         super(updateRate);
+        currentStage = null;
         stageQueue = new ConcurrentLinkedQueue<>();
     }
 
@@ -23,11 +22,11 @@ public class AutomoduleThread extends ThreadBase {
            currentStage = stageQueue.poll();
            if (currentStage != null) {
                currentStage.runStage();
-        }
+            }
     }
 
-    public final void addAutomodule(Automodule autoModule){
-            stageQueue.addAll(autoModule.getStages());
+    public final void addChain(Chain chain){
+            stageQueue.addAll(chain.getStages());
 
     }
 
@@ -42,9 +41,7 @@ public class AutomoduleThread extends ThreadBase {
 
 }
 
-
-//TODO FINISH THIS AUTOMDOULE TRHEAD
-
+//TODO TEST THIS
 
 
 

@@ -1,11 +1,7 @@
-package automodules;
+package chains;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
-
-import robotparts.RobotPart;
 
 public class Stage {
     private final Runnable setup;
@@ -40,8 +36,5 @@ public class Stage {
     public void cancel(){
         cancelRequested.set(true);
     }
-
-    //TODO it should just do a start, then while exit condition loop, and then we do a stop.
-    //TODO In automodule class, we need to make cancel so it never runs the next stages
 
 }

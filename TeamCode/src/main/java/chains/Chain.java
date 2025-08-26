@@ -1,18 +1,24 @@
-package automodules;
+package chains;
+
+import static global.Common.chainThread;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import automodules.Stage;
-
-public class Automodule {
+public class Chain implements Runnable{
     private final ArrayList<Stage> stages;
 
-    public Automodule(Stage... stageArray){
+    public Chain(Stage... stageArray){
         stages = new ArrayList<>();
         stages.addAll(Arrays.asList(stageArray));
     }
     public ArrayList<Stage> getStages(){
         return stages;
+    }
+
+    @Override
+    public void run() {
+        chainThread.get().cancel();
+        chainThread.get().addChain(this);
     }
 }

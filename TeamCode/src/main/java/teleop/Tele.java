@@ -5,7 +5,7 @@ import global.Common;
 import global.Initializer;
 import teleop.teleutil.GamepadHandler;
 
-public abstract class Tele extends OpMode implements Initializer {
+public abstract class Tele extends OpMode implements Initializer, TeleChain {
     public GamepadHandler gpA;
     public GamepadHandler gpB;
     public abstract void initTele();

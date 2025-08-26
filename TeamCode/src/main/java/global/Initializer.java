@@ -4,9 +4,11 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import java.util.ArrayList;
 
+import chains.ChainThread;
 import robotparts.RobotConfig;
 import robotparts.RobotPart;
 import utility.AutoInstantiate;
+import utility.ThreadBase;
 
 public interface Initializer extends Common{
     default void _init(OpMode thisOpMode) {
@@ -17,6 +19,9 @@ public interface Initializer extends Common{
         allRobotParts.set(new ArrayList<>());
         AutoInstantiate.initializeStaticFields(RobotConfig.class);
         allRobotParts.get().forEach(RobotPart::init);
+        chainThread.set(new ChainThread(Constants.CHAIN_THREAD_REFRESH_RATE));
+        allThreads.get().forEach(ThreadBase::start);
+
         //
 //        gameTime = new ElapsedTime();
 //        gph1 = new GamepadHandler(gamepad1);
@@ -33,6 +38,7 @@ public interface Initializer extends Common{
     }
 
     default void _start() {
+
 //        bot.start();
 //        sync.resetDelay();
 //        log.clearTelemetry();
@@ -46,9 +52,11 @@ public interface Initializer extends Common{
 //        if (showTelemetry) {
 //            log.showTelemetry();
 //        }
+        allThreads.get().forEach(ThreadBase::checkForExceptionAndTellMainThread);
     }
 
     default void _stop() {
+        allThreads.get().forEach(ThreadBase::stopThread);
 //        bot.stop();
 //        sync.logDelay();
 //        log.showLogs();
