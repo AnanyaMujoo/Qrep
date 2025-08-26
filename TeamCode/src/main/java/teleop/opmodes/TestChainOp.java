@@ -35,10 +35,11 @@ public class TestChainOp extends Tele {
                     () -> timer.seconds() < 2,
                     () -> {
                         drive.move(0,0,-0.1);
-                        },
+                    },
                     () -> {},
                     () -> {
-                        drive.stopAndReturnAccessToMainThread();
+                        drive.stop();
+                        drive.returnAccessToMainThread();
                     }
             )
     );
@@ -47,13 +48,15 @@ public class TestChainOp extends Tele {
     @Override
     public void initTele() {
         gpA.onClick(Button.Y, TestChain1);
-        gpA.onClick(Button.X, TestChain2);
+        gpA.onClick(Button.A, TestChain2);
+        gpA.onClick(Button.X, chainThread.get()::cancel);
     }
 
     @Override
     public void loopTele() {
         display("Click Y to Run", "TestChain1 (simple timer)");
-        display("Click X to Run", "TestChain2 (spin other way)");
+        display("Click A to Run", "TestChain2 (spin other way)");
+        display("Click X to Run", "Cancel");
         drive.move(0, 0, 0.1);
     }
 }

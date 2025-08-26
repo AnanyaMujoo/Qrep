@@ -41,7 +41,5 @@ public class ChainThread extends ThreadBase {
 
 }
 
-//TODO TEST THIS
-
 
 

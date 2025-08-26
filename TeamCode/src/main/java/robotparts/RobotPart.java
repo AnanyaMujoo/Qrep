@@ -91,6 +91,5 @@ public abstract class RobotPart implements Common {
     public void takeAccessFromMainThread(){ electronics.forEach(Electronic::takeAccessFromMainThread); }
     public void returnAccessToMainThread(){ electronics.forEach(Electronic::returnAccessToMainThread); }
     public void stop(){ electronics.forEach(Electronic::stop);}
-    public void stopAndReturnAccessToMainThread(){ stop(); returnAccessToMainThread(); }
 
 }

@@ -37,4 +37,8 @@ public class Stage {
         cancelRequested.set(true);
     }
 
+    // TODO DECIDE REMOVE WRAP UP?
+    // Not sure if it will be used at all
+    // Can make always run at end take in a boolean which is like exited normally?
+
 }
