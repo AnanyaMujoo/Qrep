@@ -31,16 +31,12 @@ public class PositionHolder {
             double position = motorWithEncoder.getPosition();
             if (position < snapToZeroDistance && motorWithEncoder.getTarget() < snapToZeroDistance) {
                 holdingPosition.set(false);
+            }else {
+                motorWithEncoder.setPower(motorWithEncoder.getPowerScale());
             }
-            motorWithEncoder.setPower(motorWithEncoder.getPowerScale());
-        }
-
-        else {
+        } else {
             motorWithEncoder.setPower(snapToZeroPower);
         }
-
-//TODO Test if oscikllation is unbearable
-
     }
 
 }

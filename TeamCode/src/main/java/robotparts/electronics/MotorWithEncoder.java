@@ -63,11 +63,9 @@ public class MotorWithEncoder extends Motor {
 
     //TODO we want to make a method to move the lift in increments and have position holder always running, and it updates the tagret based on manual joystick/dpad
 
-    public final void setTarget(double target, double power){
+    public void setTarget(double target, double power){
         motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motor.setTargetPosition(
-                (int) (target*distanceToTicks)
-        );
+        motor.setTargetPosition((int) (target*distanceToTicks));
         motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         this.target.set((int) target);
         this.powerScale.set((int) (power*100));
@@ -78,6 +76,14 @@ public class MotorWithEncoder extends Motor {
     }
     public double getPowerScale() {
         return (double) powerScale.get() /100;
+    }
+
+    public void updateEncoder(){
+        encoder.updatePosition();
+    }
+
+    public void updatePositionHolder(){
+        positionHolder.updatePositionHolder();
     }
 
 

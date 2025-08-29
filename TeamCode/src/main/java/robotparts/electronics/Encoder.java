@@ -10,22 +10,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import java.util.List;
 
 public class Encoder extends Electronic {
-    /**
-     * Encoder class, note that the following naming convention should be used
-     * [motor name]Enc
-     *
-     * Ex: If the motor was named bl, the encoder name would be blEnc
-     */
 
-    /**
-     * Motor that the encoder refrences
-     */
     private final DcMotorEx motor;
-    /**
-     * Type of encoder
-     * @link Type
-     */
-
     private double position, startPosition = 0; // ticks
     private final boolean invertedOutput;
 
@@ -35,33 +21,30 @@ public class Encoder extends Electronic {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
     }
-    /**
-     * Constructor to create the encoder
-     * @param m
-     */
 
     public Encoder(DcMotorEx m, boolean invertedOutput) {
         motor = m;
         this.invertedOutput = invertedOutput;
-
     }
+
     public void updatePosition(){
         position = motor.getCurrentPosition();
         //ternary operator (if/else condemned) ww
     }
+
+    // TODO FIGURE OUT IN WHAT THREAD AND WHEN THE ENCODERS SHOULD BE UPDATED
+    // HAVE TO DO BULK UPDATE, CAN DO IT IN CHAIN THREAD? OR MAYBE NEW THREAD?
+    // WHEN TO RESET AS WELL? ALWAYS SOFT AT START OR WHAT?
+    // LOOP THROUGH ALL ENCODERS AND BULK READ
+
+    // TODO CHECK SOFT RESET DOESNT ACTUALLY RESET MOVE-TO-TARGET POSISITONS
+    // IS MANUALLY ADDING AN OFFSET TO THE TARGET POSITIONS NESSESARY??
 
 
     public double getPosition() {
         return (invertedOutput? -1:1)*(position - startPosition);
     }
 
-    /**
-     * Get the type of encoder
-     * @return type
-     */
-    /**
-     * Reset the encoder
-     */
     public void hardReset(){
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         startPosition = 0;
@@ -79,15 +62,5 @@ public class Encoder extends Electronic {
         updatePosition();
         startPosition = position;
     }
-
-    /**
-     * Normal a separate encoder module and motor is a motor encoder
-     */
-
-    /**
-     * Gets the motor named from the encoderName
-     * @param encoderName
-     * @return
-     */
 
 }

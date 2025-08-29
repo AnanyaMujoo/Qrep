@@ -2,6 +2,7 @@ package robotparts;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import java.util.ArrayList;
 
@@ -11,6 +12,12 @@ import robotparts.electronics.Motor;
 import robotparts.electronics.MotorWithEncoder;
 
 public abstract class RobotPart implements Common {
+
+    protected final DcMotorSimple.Direction REVERSE = DcMotorSimple.Direction.REVERSE;
+    protected final DcMotorSimple.Direction FORWARD = DcMotorSimple.Direction.FORWARD;
+    protected final DcMotor.ZeroPowerBehavior BRAKE = DcMotor.ZeroPowerBehavior.BRAKE;
+    protected final DcMotor.ZeroPowerBehavior FLOAT = DcMotor.ZeroPowerBehavior.FLOAT;
+
 
     private final ArrayList<Electronic> electronics;
 
@@ -84,9 +91,12 @@ public abstract class RobotPart implements Common {
     public MotorWithEncoder createMotorWithEncoder(String name, DcMotor.Direction dir, DcMotor.ZeroPowerBehavior zpb, boolean invertedEncoder){
         return addElectronic(new MotorWithEncoder(hardwareMap.get().get(DcMotorEx.class, name), dir, zpb, invertedEncoder));
     }
-    public MotorWithEncoder createMotorWithEncoder(String name, DcMotor.Direction dir) {
-        return addElectronic(new MotorWithEncoder(hardwareMap.get().get(DcMotorEx.class, name), dir, DcMotor.ZeroPowerBehavior.BRAKE, false));
+    public MotorWithEncoder createMotorWithEncoder(String name, DcMotor.Direction dir, boolean invertEncoder){
+        return addElectronic(new MotorWithEncoder(hardwareMap.get().get(DcMotorEx.class, name), dir, BRAKE, invertEncoder));
     }
+//    public MotorWithEncoder createMotorWithEncoder(String name, DcMotor.Direction dir) {
+//        return addElectronic(new MotorWithEncoder(hardwareMap.get().get(DcMotorEx.class, name), dir, DcMotor.ZeroPowerBehavior.BRAKE, false));
+//    }
 
     public void takeAccessFromMainThread(){ electronics.forEach(Electronic::takeAccessFromMainThread); }
     public void returnAccessToMainThread(){ electronics.forEach(Electronic::returnAccessToMainThread); }
