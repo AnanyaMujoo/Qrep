@@ -16,6 +16,7 @@ public interface Initializer extends Common, Log {
         mainThread.set(Thread.currentThread());
 
         telemetry.set(thisOpMode.telemetry);
+        resetTelemetryQueue();
         displayAndUpdateTelemetry("Status", "Initializing...");
 
 

@@ -2,42 +2,48 @@ package utility;
 
 import static global.Common.allThreads;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class ThreadBase extends java.lang.Thread {
 
     private final double updateRate;
     private final AtomicBoolean isRunning;
-    private final AtomicBoolean wasExceptionThrown;
+    private final AtomicReference<Exception> exception;
 
     public ThreadBase(double updateRate){
         this.updateRate = updateRate;
         this.isRunning = new AtomicBoolean(true);
-        this.wasExceptionThrown = new AtomicBoolean(false);
+        exception = new AtomicReference<>();
         allThreads.get().add(this);
     }
 
-    public abstract void update() throws RuntimeException;
+    public abstract void update() throws Exception;
+
     public void stopThread(){
         isRunning.set(false);
     }
+
     @Override
     public void run() {
         while (isRunning.get()){
             try {
                 update();
                 sleep((long) (1000.0 / updateRate));
-            } catch (RuntimeException | InterruptedException r){
-                r.printStackTrace();
-                //TODO fix print stack trace (should print to main thread)
-                wasExceptionThrown.set(true);
+            } catch (Exception e){
+                exception.set(e);
                 stopThread();
             }
         }
     }
+
     public void checkForExceptionAndTellMainThread(){
-        if(wasExceptionThrown.get()){
-           // fault.warn("Exception thrown from inside thread " + name, Expectation.SURPRISING, Magnitude.CATASTROPHIC);
+        Exception e = exception.get();
+        if(e != null){
+            if(e instanceof RuntimeException){
+                throw (RuntimeException) e;
+            } else {
+                throw new RuntimeException("Exception thrown in thread", e);
+            }
         }
-        //TODO PUT THE FAULT
     }
 }

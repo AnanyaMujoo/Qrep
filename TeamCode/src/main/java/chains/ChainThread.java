@@ -18,7 +18,7 @@ public class ChainThread extends ThreadBase {
     }
 
     @Override
-    public void update() throws RuntimeException {
+    public void update() throws Exception {
            currentStage = stageQueue.poll();
            if (currentStage != null) {
                currentStage.runStage();

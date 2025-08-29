@@ -1,5 +1,7 @@
 package utility;
 
+import global.Log;
+
 public class InitVar <T> {
     private T object;
     private boolean isInitialized = false;
@@ -10,18 +12,17 @@ public class InitVar <T> {
     }
     public T get(){
         if (isInitialized()){
-        return object;
-        }
-        else {
-            //TODO PUT THE FAULT
-            throw new RuntimeException("lil bot u didnt set bro tried to get without set");
+            return object;
+        } else {
+            Log.error("Tried to use InitVar get without set");
+            return null;
         }
     }
     public boolean isInitialized(){
         return isInitialized;
     }
 
-    // might not be nessesary
+    // might not be necessary
     public void reset(){
         object = null;
         isInitialized = false;

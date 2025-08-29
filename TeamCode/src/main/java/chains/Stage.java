@@ -22,6 +22,10 @@ public class Stage {
         cancelRequested = new AtomicBoolean(false);
     }
 
+    public Stage(Runnable setup, Supplier<Boolean> loopCondition, Runnable loop, Runnable alwaysRunsAtEnd) {
+        this(setup, loopCondition, loop, ()->{}, alwaysRunsAtEnd);
+    }
+
     public void runStage(){
         cancelRequested.set(false);
         setup.run();
@@ -36,9 +40,5 @@ public class Stage {
     public void cancel(){
         cancelRequested.set(true);
     }
-
-    // TODO DECIDE REMOVE WRAP UP?
-    // Not sure if it will be used at all
-    // Can make always run at end take in a boolean which is like exited normally?
 
 }

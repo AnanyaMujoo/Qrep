@@ -4,6 +4,8 @@ import static robotparts.RobotConfig.drive;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import java.util.Locale;
+
 import chains.Chain;
 import chains.Stage;
 import teleop.Tele;
@@ -20,7 +22,7 @@ public class TestChainOp extends Tele {
             new Stage(
                     timer::reset,
                     () -> timer.seconds() < 4,
-                    () -> display("Time", String.format("%.2f/4.00", timer.seconds())),
+                    () -> display("Time", () -> String.format(Locale.US, "%.2f/4.00", timer.seconds())),
                     () -> display("Chain Done"),
                     () -> display("Chain Stopped")
             )
@@ -50,6 +52,7 @@ public class TestChainOp extends Tele {
         gpA.onClick(Button.Y, TestChain1);
         gpA.onClick(Button.A, TestChain2);
         gpA.onClick(Button.X, chainThread.get()::cancel);
+        timer.reset();
     }
 
     @Override
@@ -57,6 +60,6 @@ public class TestChainOp extends Tele {
         display("Click Y to Run", "TestChain1 (simple timer)");
         display("Click A to Run", "TestChain2 (spin other way)");
         display("Click X to Run", "Cancel");
-        drive.move(0, 0, 0.1);
+        drive.move(0, 0, 0.5*gpA.rx);
     }
 }

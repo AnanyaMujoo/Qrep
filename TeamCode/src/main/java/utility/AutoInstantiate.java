@@ -3,6 +3,8 @@ package utility;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
+import global.Log;
+
 public class AutoInstantiate {
 
     public static void initializeStaticFields(Class<?> targetClass) {
@@ -17,17 +19,18 @@ public class AutoInstantiate {
                         Object newInstance = constructor.newInstance();
                         field.set(null, newInstance);
                     } catch (NoSuchMethodException e) {
+                        Log.error("No no-arg constructor for auto instantiation");
                     }
                 } catch (InstantiationException | IllegalAccessException |
                          java.lang.reflect.InvocationTargetException e) {
+                    Log.error("Problem with auto instantiation");
                 }
             } else {
-                //throw error
+                Log.error("Cannot auto instantiate nonstatic fields");
             }
         }
     }
 
 
 }
-//TODO Add fault/log
 

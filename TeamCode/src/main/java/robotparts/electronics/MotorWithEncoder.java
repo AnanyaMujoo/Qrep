@@ -10,7 +10,7 @@ import global.Constants;
 
 public class MotorWithEncoder extends Motor {
     private final Encoder encoder;
-    private boolean properlyInitializedWithParameters = false;
+    private boolean properlyInitializedWithParameters;
     private double distanceToTicks = 1;
     private final PositionHolder positionHolder;
     private final AtomicInteger target = new AtomicInteger(0);

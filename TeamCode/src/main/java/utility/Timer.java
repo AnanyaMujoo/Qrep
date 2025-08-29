@@ -3,8 +3,10 @@ package utility;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import global.Log;
 
-public class Timer {
+
+public class Timer{
 
     private final ElapsedTime timer = new ElapsedTime();
 
@@ -16,10 +18,8 @@ public class Timer {
     }
 
     public double seconds(){
-//        fault.warn("Used timer before reset", Expectation.SURPRISING, Magnitude.CRITICAL, hasBeenReset, true);
-        // TODO FAULT HERE
         if(!hasBeenReset){
-            throw new RuntimeException("bro tried to use the timer without reset");
+            Log.error("Tried to use timer without reset!");
         }
         return timer.seconds();
     }
