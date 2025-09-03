@@ -10,11 +10,10 @@ public class DriveTemplate extends RobotPart {
 
     @Override
     public void init() {
-
-        frontRight = createMotor("fr", REVERSE);
-        backRight = createMotor("br", REVERSE);
-        frontLeft = createMotor("fl", FORWARD);
-        backLeft = createMotor("bl", FORWARD);
+        frontRight = createMotor("fr", REVERSE, FLOAT);
+        backRight = createMotor("br", REVERSE, FLOAT);
+        frontLeft = createMotor("fl", FORWARD, FLOAT);
+        backLeft = createMotor("bl", FORWARD, FLOAT);
     }
 
     public void move(double forwardPower, double strafePower, double turnPower) {

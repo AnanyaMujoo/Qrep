@@ -29,12 +29,12 @@ public class TestEncoderOp extends Tele {
         gpA.onClick(Button.Y, () -> motor.setTarget(20, 0.5));
         gpA.onClick(Button.B, () -> motor.setTarget(40, 0.5));
         gpA.onClick(Button.A, () -> motor.setTarget(0, 0.5));
+        gpA.onClick(Button.RIGHT_BUMPER, () -> motor.adjustTarget(5, 0.2));
+        gpA.onClick(Button.LEFT_BUMPER, () -> motor.adjustTarget(-5, 0.2));
     }
 
     @Override
     public void loopTele() {
-        motor.updateEncoder();
-        motor.updatePositionHolder();
 //        motor.setPower(0.5*gpA.ry);
         display("Motor Position", String.format(Locale.US, "%.2f cm", motor.getPosition()));
     }

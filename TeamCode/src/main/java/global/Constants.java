@@ -6,6 +6,8 @@ public class Constants {
 
     public static final int DEFAULT_THREAD_REFRESH_RATE = 60;
     public static final int CHAIN_THREAD_REFRESH_RATE = 60;
+    public static final int ENCODER_THREAD_REFRESH_RATE = 1000;
+
     public static final int BACKGROUND_THREAD_REFRESH_RATE = 1000;
     public static final int ODOMETRY_THREAD_REFRESH_RATE = 500;
     public static final int INDEPENDENT_THREAD_REFRESH_RATE = 1000;

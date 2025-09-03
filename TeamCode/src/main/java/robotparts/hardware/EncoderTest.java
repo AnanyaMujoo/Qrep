@@ -11,8 +11,9 @@ public class EncoderTest extends RobotPart {
 
     @Override
     public void init() {
-        motor = createMotorWithEncoder("br", REVERSE, false)
-                .setParameters(0.0, 1.0, 3.0, 1);
+        motor = createMotorWithEncoder("br", FORWARD, BRAKE, false,
+                -0.05, 0.5, 1.0,
+                3.0, 1, 30);
 
     }
 

@@ -5,8 +5,11 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import java.util.ArrayList;
 
 import chains.ChainThread;
+import chains.EncoderThread;
 import robotparts.RobotConfig;
 import robotparts.RobotPart;
+import robotparts.electronics.Encoder;
+import robotparts.electronics.MotorWithEncoder;
 import utility.AutoInstantiate;
 import utility.MainThreadAccess;
 import utility.ThreadBase;
@@ -24,10 +27,13 @@ public interface Initializer extends Common, Log {
         gamepad1.set(thisOpMode.gamepad1);
         gamepad2.set(thisOpMode.gamepad2);
         allRobotParts.set(new ArrayList<>());
+        allMotorWithEncoders.set(new ArrayList<>());
         AutoInstantiate.initializeStaticFields(RobotConfig.class);
         allRobotParts.get().forEach(RobotPart::init);
+        Encoder.setHubsToBulkRead(hardwareMap.get());
         allThreads.set(new ArrayList<>());
         chainThread.set(new ChainThread(Constants.CHAIN_THREAD_REFRESH_RATE));
+        encoderThread.set(new EncoderThread(Constants.ENCODER_THREAD_REFRESH_RATE));
         allThreads.get().forEach(ThreadBase::start);
 
         //
@@ -61,6 +67,7 @@ public interface Initializer extends Common, Log {
 //        if (showTelemetry) {
 //            log.showTelemetry();
 //        }
+        allMotorWithEncoders.get().forEach(MotorWithEncoder::updatePositionHolder);
         allThreads.get().forEach(ThreadBase::checkForExceptionAndTellMainThread);
         updateTelemetry();
     }

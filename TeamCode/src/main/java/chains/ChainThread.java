@@ -25,7 +25,7 @@ public class ChainThread extends ThreadBase {
             }
     }
 
-    public final void addChain(Chain chain){
+    public void addChain(Chain chain){
             stageQueue.addAll(chain.getStages());
 
     }

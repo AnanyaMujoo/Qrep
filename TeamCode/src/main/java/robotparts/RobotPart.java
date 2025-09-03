@@ -85,18 +85,10 @@ public abstract class RobotPart implements Common {
     public Motor createMotor(String name, DcMotor.Direction dir, DcMotor.ZeroPowerBehavior zp) {
         return addElectronic(new Motor(hardwareMap.get().get(DcMotorEx.class, name), dir, zp));
     }
-    public Motor createMotor(String name, DcMotor.Direction dir) {
-        return addElectronic(new Motor(hardwareMap.get().get(DcMotorEx.class, name), dir, DcMotor.ZeroPowerBehavior.FLOAT));
+
+    public MotorWithEncoder createMotorWithEncoder(String name, DcMotor.Direction dir, DcMotor.ZeroPowerBehavior zpb, boolean invertEncoder, double snapToZeroPower, double snapToZeroTime, double snapToZeroDistance, double pulleyRadius, double motorToPulleyGearRatio, double maximumDistance){
+        return addElectronic(new MotorWithEncoder(hardwareMap.get().get(DcMotorEx.class, name), dir, zpb, invertEncoder, snapToZeroPower, snapToZeroTime, snapToZeroDistance, pulleyRadius, motorToPulleyGearRatio, maximumDistance));
     }
-    public MotorWithEncoder createMotorWithEncoder(String name, DcMotor.Direction dir, DcMotor.ZeroPowerBehavior zpb, boolean invertedEncoder){
-        return addElectronic(new MotorWithEncoder(hardwareMap.get().get(DcMotorEx.class, name), dir, zpb, invertedEncoder));
-    }
-    public MotorWithEncoder createMotorWithEncoder(String name, DcMotor.Direction dir, boolean invertEncoder){
-        return addElectronic(new MotorWithEncoder(hardwareMap.get().get(DcMotorEx.class, name), dir, BRAKE, invertEncoder));
-    }
-//    public MotorWithEncoder createMotorWithEncoder(String name, DcMotor.Direction dir) {
-//        return addElectronic(new MotorWithEncoder(hardwareMap.get().get(DcMotorEx.class, name), dir, DcMotor.ZeroPowerBehavior.BRAKE, false));
-//    }
 
     public void takeAccessFromMainThread(){ electronics.forEach(Electronic::takeAccessFromMainThread); }
     public void returnAccessToMainThread(){ electronics.forEach(Electronic::returnAccessToMainThread); }

@@ -10,7 +10,10 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import java.util.ArrayList;
 
 import chains.ChainThread;
+import chains.EncoderThread;
 import robotparts.RobotPart;
+import robotparts.electronics.Encoder;
+import robotparts.electronics.MotorWithEncoder;
 import utility.InitVar;
 import utility.ThreadBase;
 
@@ -21,9 +24,11 @@ public interface Common {
     InitVar<Gamepad> gamepad1 = new InitVar<>();
     InitVar<Gamepad> gamepad2 = new InitVar<>();
     InitVar<ArrayList<RobotPart>> allRobotParts = new InitVar<>();
+    InitVar<ArrayList<MotorWithEncoder>> allMotorWithEncoders = new InitVar<>();
     InitVar<ArrayList<ThreadBase>> allThreads = new InitVar<>();
     InitVar<Thread> mainThread = new InitVar<>();
     InitVar<ChainThread> chainThread = new InitVar<>();
+    InitVar<EncoderThread> encoderThread = new InitVar<>();
 
 
 //    public static ElapsedTime gameTime;
