@@ -1,5 +1,4 @@
 package robotparts.hardware.templates;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import robotparts.RobotPart;
 import robotparts.electronics.Motor;
 
@@ -10,10 +9,10 @@ public class DriveTemplate extends RobotPart {
 
     @Override
     public void init() {
-        frontRight = createMotor("fr", REVERSE, FLOAT);
-        backRight = createMotor("br", REVERSE, FLOAT);
-        frontLeft = createMotor("fl", FORWARD, FLOAT);
-        backLeft = createMotor("bl", FORWARD, FLOAT);
+        frontRight = createMotor("fr", MOTOR_REVERSE, MOTOR_FLOAT);
+        backRight = createMotor("br", MOTOR_REVERSE, MOTOR_FLOAT);
+        frontLeft = createMotor("fl", MOTOR_FORWARD, MOTOR_FLOAT);
+        backLeft = createMotor("bl", MOTOR_FORWARD, MOTOR_FLOAT);
     }
 
     public void move(double forwardPower, double strafePower, double turnPower) {

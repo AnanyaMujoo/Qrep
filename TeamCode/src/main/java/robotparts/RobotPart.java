@@ -3,6 +3,7 @@ package robotparts;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import java.util.ArrayList;
 
@@ -10,13 +11,18 @@ import global.Common;
 import robotparts.electronics.Electronic;
 import robotparts.electronics.Motor;
 import robotparts.electronics.MotorWithEncoder;
+import robotparts.electronics.PositionalServo;
+import robotparts.electronics.PositionalServoGroup;
 
 public abstract class RobotPart implements Common {
 
-    protected final DcMotorSimple.Direction REVERSE = DcMotorSimple.Direction.REVERSE;
-    protected final DcMotorSimple.Direction FORWARD = DcMotorSimple.Direction.FORWARD;
-    protected final DcMotor.ZeroPowerBehavior BRAKE = DcMotor.ZeroPowerBehavior.BRAKE;
-    protected final DcMotor.ZeroPowerBehavior FLOAT = DcMotor.ZeroPowerBehavior.FLOAT;
+    protected final DcMotorSimple.Direction MOTOR_REVERSE = DcMotorSimple.Direction.REVERSE;
+    protected final DcMotorSimple.Direction MOTOR_FORWARD = DcMotorSimple.Direction.FORWARD;
+    protected final DcMotor.ZeroPowerBehavior MOTOR_BRAKE = DcMotor.ZeroPowerBehavior.BRAKE;
+    protected final DcMotor.ZeroPowerBehavior MOTOR_FLOAT = DcMotor.ZeroPowerBehavior.FLOAT;
+
+    protected final Servo.Direction SERVO_REVERSE = Servo.Direction.REVERSE;
+    protected final Servo.Direction SERVO_FORWARD = Servo.Direction.FORWARD;
 
 
     private final ArrayList<Electronic> electronics;
@@ -86,12 +92,28 @@ public abstract class RobotPart implements Common {
         return addElectronic(new Motor(hardwareMap.get().get(DcMotorEx.class, name), dir, zp));
     }
 
-    public MotorWithEncoder createMotorWithEncoder(String name, DcMotor.Direction dir, DcMotor.ZeroPowerBehavior zpb, boolean invertEncoder, double snapToZeroPower, double snapToZeroTime, double snapToZeroDistance, double pulleyRadius, double motorToPulleyGearRatio, double maximumDistance){
-        return addElectronic(new MotorWithEncoder(hardwareMap.get().get(DcMotorEx.class, name), dir, zpb, invertEncoder, snapToZeroPower, snapToZeroTime, snapToZeroDistance, pulleyRadius, motorToPulleyGearRatio, maximumDistance));
+    public MotorWithEncoder createMotorWithEncoder
+            (String name, DcMotor.Direction dir, DcMotor.ZeroPowerBehavior zpb,
+             boolean invertedEncoder, double pulleyRadius, double motorToPulleyGearRatio,
+             double maximumDistance, double snapToZeroPower, double snapToZeroTime,
+             double snapToZeroDistance){
+        return addElectronic(new MotorWithEncoder(hardwareMap.get().get(DcMotorEx.class, name),
+                dir, zpb, invertedEncoder, pulleyRadius, motorToPulleyGearRatio, maximumDistance,
+                snapToZeroPower, snapToZeroTime, snapToZeroDistance));
+    }
+
+    public PositionalServo createPositionalServo(String name, Servo.Direction dir){
+        return addElectronic(new PositionalServo(hardwareMap.get().get(Servo.class, name), dir));
+    }
+
+    public PositionalServoGroup createPositionalServoGroup(String name1, Servo.Direction dir1, String name2, Servo.Direction dir2){
+        return new PositionalServoGroup(createPositionalServo(name1, dir1), createPositionalServo(name2, dir2));
     }
 
     public void takeAccessFromMainThread(){ electronics.forEach(Electronic::takeAccessFromMainThread); }
     public void returnAccessToMainThread(){ electronics.forEach(Electronic::returnAccessToMainThread); }
     public void stop(){ electronics.forEach(Electronic::stop);}
+
+    // TODO TEST SERVOS
 
 }

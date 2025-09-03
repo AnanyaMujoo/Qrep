@@ -21,7 +21,10 @@ public class MotorWithEncoder extends Motor {
     private final double maximumDistance;
 
 
-    public MotorWithEncoder(DcMotorEx m, DcMotor.Direction dir, DcMotor.ZeroPowerBehavior zpb, boolean invertedEncoder, double snapToZeroPower, double snapToZeroTime, double snapToZeroDistance, double pulleyRadius, double motorToPulleyGearRatio, double maximumDistance) {
+    public MotorWithEncoder(DcMotorEx m, DcMotor.Direction dir, DcMotor.ZeroPowerBehavior zpb,
+                            boolean invertedEncoder, double pulleyRadius, double motorToPulleyGearRatio,
+                            double maximumDistance, double snapToZeroPower, double snapToZeroTime,
+                            double snapToZeroDistance) {
         super(m, dir, zpb);
         encoder = new Encoder(m, invertedEncoder);
         target.set(0);
@@ -86,41 +89,5 @@ public class MotorWithEncoder extends Motor {
     public void updatePositionHolder(){
         positionHolder.updatePositionHolder();
     }
-
-
-
-
-
-
-
-
-
-
-////    public void moveWithPositionHolder(double power) {
-//        if(power != 0){
-////            log.show("Manual movement");
-//            // Manual movement (no position holding, yes rest power)
-//            positionHolder.deactivate();
-//            move(power + restPowerFunction.run(getPosition()));
-//        }else if (lastTarget != 0){
-////            log.show("Not moving, nonzero target");
-//            // Not moving, nonzero target (yes position holding, yes rest power)
-//            positionHolder.activate();
-//            move(restPowerFunction.run(getPosition()));
-//        }else if(getPosition() > snapToZeroDistance){
-////            log.show("Above snap range");
-//            // Above snap range (any position holding, yes rest power
-//            move(restPowerFunction.run(getPosition()));
-//        }else if(getPosition() > 0.2 && getPosition() < snapToZeroDistance){
-////            log.show("In snap range");
-//            // In snap range (no position holding, no rest power, yes down power)
-//            positionHolder.deactivate();
-//            move(-Math.abs(snapToZeroPower));
-//        }else{
-////            log.show("Below snap range");
-//            // Below snap range (no position holding, no rest power, no down power)
-//            positionHolder.deactivate();
-//            move(0.0);
-//        }
 
 }
