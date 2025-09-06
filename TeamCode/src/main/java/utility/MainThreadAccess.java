@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import global.Common;
 
 public class MainThreadAccess implements Common {
-    private final AtomicBoolean mainThreadAccess = new AtomicBoolean(true);
+    public final AtomicBoolean mainThreadAccess = new AtomicBoolean(true);
 
     public boolean doesCurrentThreadHaveAccess(){
         return isRunningFromMainThread() == mainThreadAccess.get();

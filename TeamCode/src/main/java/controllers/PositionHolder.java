@@ -32,14 +32,12 @@ public class PositionHolder {
             double position = motorWithEncoder.getPosition();
             if (position < snapToZeroDistance && motorWithEncoder.getTarget() < snapToZeroDistance) {
                 holdingPosition.set(false);
+                motorWithEncoder.resetRunMode();
+                timer.reset();
             }else {
                 motorWithEncoder.setPower(motorWithEncoder.getPowerScale());
             }
         } else {
-            if(motorWithEncoder.isMotorInTargetingMode()){
-                motorWithEncoder.resetRunMode();
-                timer.reset();
-            }
             if(timer.seconds() < snapToZeroTime) {
                 motorWithEncoder.setPower(snapToZeroPower);
             }else{

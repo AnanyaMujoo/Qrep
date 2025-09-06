@@ -1,5 +1,7 @@
 package robotparts.hardware.templates;
 
+import chains.Chain;
+import chains.Stage;
 import robotparts.RobotPart;
 import robotparts.electronics.MotorWithEncoder;
 
@@ -18,14 +20,12 @@ public class LiftTemplate extends RobotPart {
 
     }
 
-    public void setTarget(double target, double power){
-        right.setTarget(target, power);
-        left.setTarget(target, power);
+    public Runnable setTargetRunnable(double target, double power){
+        return () -> { right.setTarget(target, power); left.setTarget(target, power); };
     }
 
-    public void adjustTarget(double offset, double power){
-        right.adjustTarget(offset, power);
-        left.adjustTarget(offset, power);
+    public Runnable adjustTargetRunnable(double offset, double power){
+        return () -> { right.adjustTarget(offset, power); left.adjustTarget(offset, power); };
     }
 
     public void softResetEncoders(){
@@ -36,6 +36,5 @@ public class LiftTemplate extends RobotPart {
     public double getRightPosition(){ return right.getPosition(); }
     public double getLeftPosition(){ return left.getPosition(); }
     public double getAveragePosition(){ return (getLeftPosition() + getRightPosition())/2.0; }
-
 
 }

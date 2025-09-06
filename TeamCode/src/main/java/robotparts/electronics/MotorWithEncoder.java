@@ -13,9 +13,9 @@ import global.Constants;
 import global.Log;
 
 public class MotorWithEncoder extends Motor {
-    private final Encoder encoder;
+    public final Encoder encoder;
     private final double distanceToTicks;
-    private final PositionHolder positionHolder;
+    public final PositionHolder positionHolder;
     private final AtomicInteger target = new AtomicInteger(0);
     private final AtomicInteger powerScale = new AtomicInteger(0); //0-100
     private final double maximumDistance;
@@ -67,12 +67,12 @@ public class MotorWithEncoder extends Motor {
             Log.error("Cannot set target of MotorWithEncoder greater than maximumDistance or less than 0");
         }
         motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        double targetInTicks = target*distanceToTicks;
+        double targetInTicks = target * distanceToTicks;
         double adjustedTarget = targetInTicks + encoder.getStartPosition();
         motor.setTargetPosition((int) adjustedTarget);
         motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         this.target.set((int) target);
-        this.powerScale.set((int) (power*100));
+        this.powerScale.set((int) (power * 100));
         positionHolder.holdingPosition.set(true);
     }
     public double getTarget() {

@@ -1,5 +1,7 @@
 package global;
 
+import java.util.function.Supplier;
+
 public class Constants {
 
     private Constants(){}
@@ -7,6 +9,10 @@ public class Constants {
     public static final int DEFAULT_THREAD_REFRESH_RATE = 60;
     public static final int CHAIN_THREAD_REFRESH_RATE = 60;
     public static final int ENCODER_THREAD_REFRESH_RATE = 1000;
+
+
+    public static final Runnable EMPTY_RUNNABLE = () -> {};
+    public static final Supplier<Boolean> ALWAYS_FALSE = () -> false;
 
     public static final int BACKGROUND_THREAD_REFRESH_RATE = 1000;
     public static final int ODOMETRY_THREAD_REFRESH_RATE = 500;

@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import java.util.Locale;
 
 import chains.Chain;
+import chains.ChainMaker;
 import chains.Stage;
 import teleop.Tele;
 import teleop.teleutil.Button;
@@ -18,17 +19,16 @@ public class TestChainOp extends Tele {
 
     private final Timer timer = new Timer();
 
-    private final Chain TestChain1 = new Chain(
+    private final ChainMaker TestChain1 = () -> new Chain(
             new Stage(
                     timer::reset,
                     () -> timer.seconds() < 4,
                     () -> display("Time", () -> String.format(Locale.US, "%.2f/4.00", timer.seconds())),
-                    () -> display("Chain Done"),
                     () -> display("Chain Stopped")
             )
     );
 
-    private final Chain TestChain2 = new Chain(
+    private final ChainMaker TestChain2 = () -> new Chain(
             new Stage(
                     () ->{
                         drive.takeAccessFromMainThread();
@@ -38,7 +38,6 @@ public class TestChainOp extends Tele {
                     () -> {
                         drive.move(0,0,-0.1);
                     },
-                    () -> {},
                     () -> {
                         drive.stop();
                         drive.returnAccessToMainThread();

@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class Encoder extends Electronic {
 
-    private final DcMotorEx motor;
+    public final DcMotorEx motor;
     private final AtomicInteger position;
     private final AtomicInteger startPosition;
 //    private double position, startPosition = 0; // ticks

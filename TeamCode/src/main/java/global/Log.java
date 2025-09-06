@@ -1,6 +1,9 @@
 package global;
 
+import static robotparts.RobotConfig.encoderTest;
+
 import java.util.AbstractMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Supplier;
@@ -26,6 +29,10 @@ public interface Log extends Common {
 
     default void display(String message, Object value) {
         display(message, () -> value);
+    }
+
+    default void display(String message, String format, Object value) {
+        display(message, () -> String.format(Locale.US, format, value));
     }
 
     default void display(String message) {
