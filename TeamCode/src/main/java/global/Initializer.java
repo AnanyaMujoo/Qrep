@@ -10,6 +10,7 @@ import robotparts.RobotConfig;
 import robotparts.RobotPart;
 import robotparts.electronics.Encoder;
 import robotparts.electronics.MotorWithEncoder;
+import robotparts.electronics.MotorWithEncoderRotational;
 import utility.AutoInstantiate;
 import utility.MainThreadAccess;
 import utility.ThreadBase;
@@ -28,6 +29,7 @@ public interface Initializer extends Common, Log {
         gamepad2.set(thisOpMode.gamepad2);
         allRobotParts.set(new ArrayList<>());
         allMotorWithEncoders.set(new ArrayList<>());
+        allMotorWithEncoderRotational.set(new ArrayList<>());
         AutoInstantiate.initializeStaticFields(RobotConfig.class);
         allRobotParts.get().forEach(RobotPart::init);
         Encoder.setHubsToBulkRead(hardwareMap.get());

@@ -14,6 +14,7 @@ import chains.EncoderThread;
 import robotparts.RobotPart;
 import robotparts.electronics.Encoder;
 import robotparts.electronics.MotorWithEncoder;
+import robotparts.electronics.MotorWithEncoderRotational;
 import utility.InitVar;
 import utility.ThreadBase;
 
@@ -25,6 +26,7 @@ public interface Common {
     InitVar<Gamepad> gamepad2 = new InitVar<>();
     InitVar<ArrayList<RobotPart>> allRobotParts = new InitVar<>();
     InitVar<ArrayList<MotorWithEncoder>> allMotorWithEncoders = new InitVar<>();
+    InitVar<ArrayList<MotorWithEncoderRotational>> allMotorWithEncoderRotational = new InitVar<>();
     InitVar<ArrayList<ThreadBase>> allThreads = new InitVar<>();
     InitVar<Thread> mainThread = new InitVar<>();
     InitVar<ChainThread> chainThread = new InitVar<>();

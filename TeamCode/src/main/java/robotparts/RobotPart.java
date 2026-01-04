@@ -3,9 +3,11 @@ package robotparts;
 import static global.Constants.ALWAYS_FALSE;
 import static global.Constants.EMPTY_RUNNABLE;
 
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import java.sql.Time;
@@ -15,9 +17,11 @@ import java.util.function.Supplier;
 
 import chains.Stage;
 import global.Common;
+import robotparts.electronics.ColorSensor;
 import robotparts.electronics.Electronic;
 import robotparts.electronics.Motor;
 import robotparts.electronics.MotorWithEncoder;
+import robotparts.electronics.MotorWithEncoderRotational;
 import robotparts.electronics.PositionalServo;
 import robotparts.electronics.PositionalServoGroup;
 import utility.Timer;
@@ -50,6 +54,8 @@ public abstract class RobotPart implements Common {
         return addElectronic(new Motor(hardwareMap.get().get(DcMotorEx.class, name), dir, zp));
     }
 
+
+
     public MotorWithEncoder createMotorWithEncoder
             (String name, DcMotor.Direction dir, DcMotor.ZeroPowerBehavior zpb,
              boolean invertedEncoder, double pulleyRadius, double motorToPulleyGearRatio,
@@ -60,12 +66,23 @@ public abstract class RobotPart implements Common {
                 snapToZeroPower, snapToZeroTime, snapToZeroDistance));
     }
 
+    public MotorWithEncoderRotational createMotorWithEncoderRotational
+            (String name, DcMotor.Direction dir, DcMotor.ZeroPowerBehavior zpb,
+             boolean invertedEncoder,double encoderTicksPerRevolution, double motorToOutputGearRatio){
+        return addElectronic(new MotorWithEncoderRotational(hardwareMap.get().get(DcMotorEx.class, name),
+                dir, zpb, invertedEncoder, encoderTicksPerRevolution, motorToOutputGearRatio));
+    }
+
     public PositionalServo createPositionalServo(String name, Servo.Direction dir){
         return addElectronic(new PositionalServo(hardwareMap.get().get(Servo.class, name), dir));
     }
 
     public PositionalServoGroup createPositionalServoGroup(String name1, Servo.Direction dir1, String name2, Servo.Direction dir2){
         return new PositionalServoGroup(createPositionalServo(name1, dir1), createPositionalServo(name2, dir2));
+    }
+
+    public ColorSensor createColorSensor(String name){
+        return addElectronic(new ColorSensor(hardwareMap.get().get(NormalizedColorSensor.class, name)));
     }
 
     public void takeAccessFromMainThread(){ electronics.forEach(Electronic::takeAccessFromMainThread); }

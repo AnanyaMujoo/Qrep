@@ -1,5 +1,6 @@
-package teleop.opmodes;
+package teleop.testopmodes;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -7,6 +8,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import teleop.Tele;
 import utility.MainThreadAccess;
 
+@Disabled
 @TeleOp
 public class TestThreadOp extends Tele {
 

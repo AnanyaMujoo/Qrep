@@ -14,12 +14,10 @@ public class ClickToggleButton extends ToggleButton {
             on = !on; //reverses the proccess
             if (on) {
                 action.run();
-
             }
             else action2.run();
         }
         lastButtonState = currentState;
-
     }
 
 }

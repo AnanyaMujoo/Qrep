@@ -1,7 +1,8 @@
-package teleop.opmodes;
+package teleop.testopmodes;
 
 import static robotparts.RobotConfig.drive;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import java.util.Locale;
@@ -11,9 +12,9 @@ import chains.ChainMaker;
 import chains.Stage;
 import teleop.Tele;
 import teleop.teleutil.Button;
-import utility.MainThreadAccess;
 import utility.Timer;
 
+@Disabled
 @TeleOp
 public class TestChainOp extends Tele {
 

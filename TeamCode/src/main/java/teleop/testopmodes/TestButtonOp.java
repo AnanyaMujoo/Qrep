@@ -1,12 +1,12 @@
-package teleop.opmodes;
+package teleop.testopmodes;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-
-import java.lang.annotation.Annotation;
 
 import teleop.Tele;
 import teleop.teleutil.Button;
 
+@Disabled
 @TeleOp
 public class TestButtonOp extends Tele{
 

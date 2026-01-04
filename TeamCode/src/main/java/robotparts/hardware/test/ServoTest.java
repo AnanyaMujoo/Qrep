@@ -1,4 +1,4 @@
-package robotparts.hardware;
+package robotparts.hardware.test;
 
 import robotparts.RobotPart;
 import robotparts.electronics.PositionalServo;

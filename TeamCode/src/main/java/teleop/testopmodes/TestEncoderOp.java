@@ -1,16 +1,17 @@
-package teleop.opmodes;
+package teleop.testopmodes;
 
-import static robotparts.RobotConfig.encoderTest;
+//import static robotparts.RobotConfig.encoderTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import java.util.Locale;
 
-import chains.Chain;
 import robotparts.electronics.MotorWithEncoder;
 import teleop.Tele;
 import teleop.teleutil.Button;
 
+@Disabled
 @TeleOp
 public class TestEncoderOp extends Tele {
 
@@ -22,7 +23,7 @@ public class TestEncoderOp extends Tele {
 
     @Override
     public void initTele() {
-        motor = encoderTest.motor;
+//        motor = encoderTest.motor;
         motor.softResetEncoder();
 
         gpA.onClick(Button.X, motor::softResetEncoder);

@@ -1,6 +1,4 @@
-package robotparts.hardware;
-
-import java.util.function.Supplier;
+package robotparts.hardware.test;
 
 import robotparts.RobotPart;
 import robotparts.electronics.Motor;

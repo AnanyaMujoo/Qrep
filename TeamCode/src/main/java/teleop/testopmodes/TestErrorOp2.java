@@ -1,11 +1,12 @@
-package teleop.opmodes;
+package teleop.testopmodes;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import teleop.Tele;
-import utility.ThreadBase;
 import utility.Timer;
 
+@Disabled
 @TeleOp
 public class TestErrorOp2 extends Tele {
 
