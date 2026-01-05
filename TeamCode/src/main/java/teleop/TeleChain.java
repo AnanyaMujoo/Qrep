@@ -47,7 +47,7 @@ public interface TeleChain {
     ChainMaker Shoot = () -> new Chain(
             stage(intake, () -> intake.feed(-1), 0.05),
             stage(intake, intake::unlock, 0.1),
-            stage(intake, () -> {}, () -> turret.isReady()),
+            stage(intake, () -> {}, turret.isNotReady),
             stage(intake, () -> QbitOp.isTurret23Mode.set(true)),
             stage(intake, () -> intake.intakeAndFeed(1), 1),
             stage(intake, () -> QbitOp.isTurretTargeting.set(false)),

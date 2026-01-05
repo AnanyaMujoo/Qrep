@@ -12,6 +12,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 
 import geometry.Pose;
 import geometry.Vector;
@@ -26,6 +27,8 @@ public class Turret extends RobotPart {
     public Motor turret;
     public MotorWithEncoderRotational shooter;
     public Timer timer = new Timer();
+    public Timer timer2 = new Timer();
+
     public double currentPower = 0;
 
     public Limelight3A limey;
@@ -41,16 +44,17 @@ public class Turret extends RobotPart {
     public static final double SHOOT_ANGLE = 52;
     public static final double g = 9.83;
 
-    public static final double SHOOT_RATIO_1 = 1.5;
+    public static final double SHOOT_RATIO_1 = 1.4;
 
 
-    public static final double SHOOT_RATIO_23 = SHOOT_RATIO_1*1.1;
+    public static final double SHOOT_RATIO_23 = SHOOT_RATIO_1*1.3;
 
     @Override
     public void init() {
         turret = createMotor("tu", MOTOR_FORWARD, MOTOR_BRAKE);
         shooter = createMotorWithEncoderRotational("sh", MOTOR_FORWARD, MOTOR_FLOAT, false, 28.0, 1);
         timer.reset();
+        timer2.reset();
         limey = hardwareMap.get().get(Limelight3A.class, "shuhulsdumb");
         limey.pipelineSwitch(8);
         limey.start();
@@ -101,11 +105,14 @@ public class Turret extends RobotPart {
         };
     }
 
-
-    public boolean isReady(){
+    public Supplier<Boolean> isNotReady = () -> {
         double shootError = Math.abs(QbitOp.shooterTarget.get() - shooter.getVelocity());
         double turnError = Math.abs(QbitOp.turnError.get());
 
-        return turnError < 1 && shootError < 100;
-    }
+        if(turnError > 2 || shootError > 80){
+            timer2.reset();
+        }else return timer2.seconds() < 0.4;
+
+        return true;
+    };
 }

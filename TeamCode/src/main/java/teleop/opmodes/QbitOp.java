@@ -67,7 +67,20 @@ public class QbitOp extends Tele {
     public void loopTele() {
 
 
-        drive.move(0.7*gpA.ry, 0.7*gpA.rx, 0.4*gpA.lx);
+        drive.move(0.7*gpA.ry, 0.7*gpA.rx, 0.6*gpA.lx);
+
+        drive.updateOdometry();
+        display("Odo X (cm)", drive.getX());
+        display("Odo Y (cm)", drive.getY());
+        display("Odo H (deg)", drive.getHeading());
+
+//        drive.updateOdotest();
+//        display("Odo X (mm)", drive.getOdoXMM());
+//        display("Odo Y (mm)", drive.getOdoYMM());
+//        display("Odo H (deg)", drive.getOdoHeadingDeg());
+
+
+
 
 //        turret.shoot(0.6);
 
@@ -92,7 +105,7 @@ public class QbitOp extends Tele {
 //            turret.shoot(0);
 //        }
 
-//        display("Detect", intake.getDetectDistance());
+        display("Detect", intake.getDetectDistance());
 
 
 
@@ -143,7 +156,7 @@ public class QbitOp extends Tele {
                 }
             }else{
                 turret.turn(0.0);
-                shooterTarget.set(1000.0);
+                shooterTarget.set(2000.0);
             }
         }else{
             turret.turn(0.0);
