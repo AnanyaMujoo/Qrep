@@ -25,4 +25,7 @@ public class Motor extends Electronic {
     @Override
     public void stop(){ setPower(0); }
 
+    public double getPower() {
+        return motor.getPower();
+    }
 }
