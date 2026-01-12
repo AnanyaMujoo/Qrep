@@ -3,6 +3,7 @@ package robotparts.electronics;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 public class Motor extends Electronic {
 
@@ -14,6 +15,9 @@ public class Motor extends Electronic {
         motor.setZeroPowerBehavior(zpb);
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motor.setPower(0);
+    }
+    public PIDFCoefficients getPIDFCoefficients(){
+        return motor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     public void setPower(double p){

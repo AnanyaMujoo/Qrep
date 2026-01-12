@@ -53,6 +53,7 @@ public interface TeleChain {
             stage(intake, () -> QbitOp.isTurretTargeting.set(false)),
             stage(intake, () -> QbitOp.isTurret23Mode.set(false))
 
+//p,10,i,3,d,0,f,0
 
 
 

@@ -73,6 +73,18 @@ public class QbitOp extends Tele {
         display("Odo X (cm)", drive.getX());
         display("Odo Y (cm)", drive.getY());
         display("Odo H (deg)", drive.getHeading());
+        display("shootertqarget", shooterTarget.get());
+        display("shooter velocity", turret.shooter.getVelocity());
+        display("shooter velocity error", shooterTarget.get()-turret.shooter.getVelocity());
+        display("shooter poition ", turret.shooter.getPosition());
+
+
+
+        display(" turn error", turnError.get());
+        display("pidf", turret.shooter.getPIDFCoefficients());
+
+
+
 
 //        drive.updateOdotest();
 //        display("Odo X (mm)", drive.getOdoXMM());
