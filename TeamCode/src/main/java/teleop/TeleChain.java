@@ -2,6 +2,7 @@ package teleop;
 
 import static chains.StageBuilder.stage;
 import static robotparts.RobotConfig.drive;
+import static robotparts.RobotConfig.shooter;
 
 import java.util.function.Supplier;
 
@@ -12,6 +13,26 @@ import teleop.opmodes.QtechOp;
 
 public interface TeleChain {
 
+    ChainMaker shootFar = () -> new Chain(
+            //TODO shootFar
+            stage(drive, drive.moveRunnable(0.1, 0.2, 0.3), 1),
+            //stage 1 from identified position move to correvt angle  with drive move runnable
+            stage(shooter, shooter.shootRunnable(1))
+            //stage 2 shoot at correct power for angle+position
+    );
+
+    ChainMaker shootClose = () -> new Chain(
+            //TODO shootClose
+            stage(drive, drive.moveRunnable(0.1, 0.2, 0.3), 1),
+            //stage 1 from identified position move to correvt angle  with drive move runnable
+            stage(shooter, shooter.shootRunnable(1))
+            //stage 2 shoot at correct power for angle+position
+    );
+
+    //TODO make a chainmaker for shooting manually from not identified positions
+    ChainMaker shootManual = () -> new Chain(
+            stage(shooter, shooter.shootRunnable(1))
+    );
 //    ChainMaker Test2 = () -> new Chain(
 //            stage(drive, drive.moveRunnable(0.1, 0.2, 0.3), 1),
 //            stage(encoderTest.setTargetRunnable(10, 0.5), 3),

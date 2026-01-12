@@ -22,5 +22,8 @@ public class DriveTemplate extends RobotPart {
         frontLeft.setPower(forwardPower + strafePower + turnPower);
         backLeft.setPower(forwardPower - strafePower + turnPower);
     }
+    public Runnable moveRunnable(double forwardPower, double strafePower, double turnPower){
+        return () -> move(forwardPower, strafePower, turnPower);
+    }
 
 }
