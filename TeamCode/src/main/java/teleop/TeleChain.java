@@ -4,12 +4,8 @@ import static chains.StageBuilder.stage;
 import static robotparts.RobotConfig.drive;
 import static robotparts.RobotConfig.shooter;
 
-import java.util.function.Supplier;
-
 import chains.Chain;
 import chains.ChainMaker;
-import chains.Stage;
-import teleop.opmodes.QtechOp;
 
 public interface TeleChain {
 
@@ -19,13 +15,9 @@ public interface TeleChain {
             stage(shooter, shooter.intakeRunnable(0.6), 1),
             stage(drive, drive.moveRunnable(0.7, 0, -0.3), 3),
             stage(shooter, shooter.shootRunnable(0.8),1),
+            stage(shooter, shooter.shootAndIntakeRunnable(0.8, 0.8),1)
+            );
 
-
-
-            //stage 1 from identified position move to correvt angle  with drive move runnable
-            stage(shooter, shooter.shootRunnable(1), 1)
-            //stage 2 shoot at correct power for angle+position
-    );
 
     ChainMaker shootClose = () -> new Chain(
             //TODO shootClose

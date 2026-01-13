@@ -1,5 +1,7 @@
 package utility;
 
+import androidx.collection.ArraySet;
+
 import global.Log;
 
 public class InitVar <T> {

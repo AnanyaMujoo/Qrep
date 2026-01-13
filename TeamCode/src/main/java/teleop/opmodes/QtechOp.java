@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import teleop.Tele;
+import teleop.teleutil.Button;
 
 @Disabled
 @TeleOp
@@ -18,7 +19,7 @@ public class QtechOp extends Tele {
     @Override
     public void initTele() {
 //prespecificed buttons go here(when they are linked with chains)
-//        gpA.onceMode(Button.B, Test);
+        gpA.onPress(Button.B, shootFar);
         //TODO make a way for shooting manually from not identified positions
         // maybe use the bumper to increase the speed by increments, also display reccomended positions/distances for the speed, and current setting
 

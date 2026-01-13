@@ -27,6 +27,10 @@ public class Shooter extends RobotPart {
         topRight.setPower(forwardPower);
         topLeft.setPower(forwardPower);
     }
+    public void shootAndIntake(double powerIntake, double powerShooter){
+        intake(powerIntake);
+        shoot(powerShooter);
+    }
 
     public Runnable intakeRunnable(double forwardPower){
         return () -> intake(forwardPower);
@@ -35,5 +39,10 @@ public class Shooter extends RobotPart {
     public Runnable shootRunnable(double forwardPower){
         return () -> intake(forwardPower);
     }
+
+    public Runnable shootAndIntakeRunnable(double powerIntake, double powerShooter){
+        return () -> shootAndIntake(powerIntake, powerShooter);
+    }
+
 
 }
