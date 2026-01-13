@@ -12,9 +12,11 @@ public interface TeleChain {
     ChainMaker shootFar = () -> new Chain(
             //TODO shootFar
             stage(drive, drive.moveRunnable(0.6, 0, 0), 0.2),
-            stage(shooter, shooter.intakeRunnable(0.6), 1),
-            stage(drive, drive.moveRunnable(0.7, 0, -0.3), 3),
-            stage(shooter, shooter.shootRunnable(0.8),1),
+            stage(shooter, shooter.intakeRunnable(-0.7), 1),
+            stage(drive, drive.moveRunnable(-0.7, 0,0),3),
+            stage(drive, drive.moveRunnable(0, 0,0.7),1),
+
+            stage(shooter, shooter.shootRunnable(0.8),2),
             stage(shooter, shooter.shootAndIntakeRunnable(0.8, 0.8),1)
             );
 
