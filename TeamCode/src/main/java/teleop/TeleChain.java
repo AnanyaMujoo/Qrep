@@ -15,9 +15,15 @@ public interface TeleChain {
 
     ChainMaker shootFar = () -> new Chain(
             //TODO shootFar
-            stage(drive, drive.moveRunnable(0.1, 0.2, 0.3), 1),
+            stage(drive, drive.moveRunnable(0.6, 0, 0), 0.2),
+            stage(shooter, shooter.intakeRunnable(0.6), 1),
+            stage(drive, drive.moveRunnable(0.7, 0, -0.3), 3),
+            stage(shooter, shooter.shootRunnable(0.8),1),
+
+
+
             //stage 1 from identified position move to correvt angle  with drive move runnable
-            stage(shooter, shooter.shootRunnable(1))
+            stage(shooter, shooter.shootRunnable(1), 1)
             //stage 2 shoot at correct power for angle+position
     );
 
