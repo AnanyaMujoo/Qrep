@@ -75,5 +75,30 @@ public interface TeleChain {
 //            stage(turret, () -> turret.shoot(0.8), 2),
 //            stage(turret, intake,  () -> {turret.shoot(0.9); intake.feed(1.0); }, 0.2)
     );
-
+ ChainMaker JustIntake = () -> new Chain(
+         stage(intake, () -> intake.intakeAndFeed(1),  1)
+         );
+//    ChainMaker Shoot2 = () -> new Chain(
+//
+//            // Start intake and feeder (NO TIME LIMIT)
+//            stage(intake, () -> intake.intakeAndFeed(1)),
+//
+//            // Set shooter RPM immediately
+//            stage(turret, () -> {
+//                double rpm = turret.getShooterRPMFromLimelight();
+//                QbitOp.shooterTarget.set(rpm);
+//            }),
+//
+//            // WAIT for turret/shooter to be ready
+//            stage(turret, () -> {}, turret.isNotReady),
+//
+//            // Continue feeding for shooting time
+//            stage(intake, () -> intake.intakeAndFeed(1), 1.5),
+//
+//            // Stop intake
+//            stage(intake, intake::stop),
+//
+//            // Stop targeting
+//            stage(intake, () -> QbitOp.isTurretTargeting.set(false))
+//    );
 }
