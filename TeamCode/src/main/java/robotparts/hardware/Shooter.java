@@ -70,4 +70,25 @@ public class Shooter extends RobotPart {
         }
         shoot(-manualPower);
     }
+
+    public void decreasePower() {
+        // 2. CHECK TIME: If less than 0.25 seconds have passed, ignore this click
+        if (System.currentTimeMillis() - lastPressTime < 250) {
+            return;
+        }
+        // Update the last press time
+        lastPressTime = System.currentTimeMillis();
+
+        // 3. DECREASE POWER
+        manualPower -= 0.1;
+
+        // 4. ROUND IT: This forces 0.700001 to become exactly 0.7
+        manualPower = Math.round(manualPower * 10.0) / 10.0;
+
+        // 5. WRAP AROUND
+        if (manualPower > 1.0) {
+            manualPower = 0;
+        }
+        shoot(-manualPower);
+    }
 }

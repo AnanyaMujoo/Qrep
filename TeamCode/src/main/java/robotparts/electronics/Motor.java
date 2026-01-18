@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 public class Motor extends Electronic {
 
-    protected final DcMotorEx motor;
+    public final DcMotorEx motor;
 
     public Motor(DcMotorEx m, DcMotor.Direction dir, DcMotor.ZeroPowerBehavior zpb){
         motor = m;
