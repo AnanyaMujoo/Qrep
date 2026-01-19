@@ -16,6 +16,7 @@ import com.pedropathing.geometry.Pose;
 import com.pedropathing.util.Timer;
 
 import global.Initializer;
+import robotparts.hardware.Turret;
 import teleop.TeleChain;
 import chains.Stage;
 
@@ -23,6 +24,10 @@ import static robotparts.RobotConfig.intake;
 import static robotparts.RobotConfig.turret;
 import static teleop.TeleChain.Shoot;
 import static teleop.TeleChain.ShootAuto;
+import static teleop.opmodes.QbitOp.isTurret23Mode;
+import static teleop.opmodes.QbitOp.isTurretTargeting;
+import static teleop.opmodes.QbitOp.shooterTarget;
+import static teleop.opmodes.QbitOp.turnError;
 
 
 @Autonomous(name = "Pedro Pathing Autonomous", group = "Autonomous")
@@ -79,7 +84,47 @@ public class QAuto extends OpMode implements Initializer {
         panelsTelemetry.debug("X", follower.getPose().getX());
         panelsTelemetry.debug("Y", follower.getPose().getY());
         panelsTelemetry.debug("Heading", follower.getPose().getHeading());
+        panelsTelemetry.debug("turret targeting", isTurretTargeting.get());
         panelsTelemetry.update(telemetry);
+
+
+        if(isTurretTargeting.get()){
+            geometry.Pose pose = turret.getPoseWithLimey();
+            double distance = pose.getY();
+            double angle = pose.getAngle();
+            double targetAngle = Math.toDegrees(Math.atan(Turret.LIMEY_LEFT_DISTANCE/distance));
+            double error = targetAngle - angle;
+
+            if(distance > 80){
+                targetAngle = Math.toDegrees(Math.atan(Turret.LIMEY_LEFT_DISTANCE/distance));
+                error = targetAngle - angle;
+                turnError.set(error);
+                double power = (-Math.signum(error)*Turret.TURRET_TARGETING_REST_POWER - error*Turret.TURRET_TARGETING_K)*0.5;
+
+                if(Math.abs(error) > 1) {
+                    turret.turn(power);
+                }else{
+                    turret.turn(0.0);
+                }
+
+                double targetRPM = turret.getShooterRPMFromLimelight();
+                shooterTarget.set(targetRPM);
+                if(!isTurret23Mode.get()) {
+                    shooterTarget.set(targetRPM * Turret.SHOOT_RATIO_1);
+                }else{
+                    shooterTarget.set(targetRPM * Turret.SHOOT_RATIO_23);
+                }
+//                display("RPM", targetRPM);
+            }else{
+                turret.turn(0.0);
+                shooterTarget.set(2000.0);
+            }
+        }else{
+            turret.turn(0.0);
+            shooterTarget.set(0.0);
+//
+//            display("Inhere");
+        }
         _loop();
 
     }
@@ -147,12 +192,11 @@ public class QAuto extends OpMode implements Initializer {
 
             case SHOOT1:
                 if(!follower.isBusy()){
-                    //add shoot code
                     ShootAuto.run();
                     telemetry.addLine("Done Path 1");
-//
+                    setPathState(DONE);
+
                 }
-                setPathState(DONE);
                 break;
 
 //            case 1:
