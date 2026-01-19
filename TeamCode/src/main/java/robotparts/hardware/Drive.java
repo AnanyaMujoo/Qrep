@@ -14,7 +14,7 @@ public class Drive extends DriveTemplate {
     @Override
     public void init() {
         super.init();
-        pinpoint = hardwareMap.get().get(GoBildaPinpointDriver.class, "od");
+        pinpoint = QhardwareMap.get().get(GoBildaPinpointDriver.class, "od");
         /*
          *  Set the odometry pod positions relative to the point that you want the position to be measured from.
          *

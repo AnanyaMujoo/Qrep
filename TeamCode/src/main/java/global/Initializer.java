@@ -10,21 +10,19 @@ import robotparts.RobotConfig;
 import robotparts.RobotPart;
 import robotparts.electronics.Encoder;
 import robotparts.electronics.MotorWithEncoder;
-import robotparts.electronics.MotorWithEncoderRotational;
 import utility.AutoInstantiate;
-import utility.MainThreadAccess;
 import utility.ThreadBase;
 
 public interface Initializer extends Common, Log {
     default void _init(OpMode thisOpMode) {
         mainThread.set(Thread.currentThread());
 
-        telemetry.set(thisOpMode.telemetry);
+        Qtelemetry.set(thisOpMode.telemetry);
         resetTelemetryQueue();
         displayAndUpdateTelemetry("Status", "Initializing...");
 
 
-        hardwareMap.set(thisOpMode.hardwareMap);
+        QhardwareMap.set(thisOpMode.hardwareMap);
         gamepad1.set(thisOpMode.gamepad1);
         gamepad2.set(thisOpMode.gamepad2);
         allRobotParts.set(new ArrayList<>());
@@ -32,7 +30,7 @@ public interface Initializer extends Common, Log {
         allMotorWithEncoderRotational.set(new ArrayList<>());
         AutoInstantiate.initializeStaticFields(RobotConfig.class);
         allRobotParts.get().forEach(RobotPart::init);
-        Encoder.setHubsToBulkRead(hardwareMap.get());
+        Encoder.setHubsToBulkRead(QhardwareMap.get());
         allThreads.set(new ArrayList<>());
         chainThread.set(new ChainThread(Constants.CHAIN_THREAD_REFRESH_RATE));
         encoderThread.set(new EncoderThread(Constants.ENCODER_THREAD_REFRESH_RATE));

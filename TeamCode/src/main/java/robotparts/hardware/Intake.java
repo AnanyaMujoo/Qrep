@@ -44,6 +44,7 @@ public class Intake extends RobotPart {
         intake.setPower(power);
     }
 
+
     public void feed(double power){
         feeder.setPower(power);
     }
@@ -72,6 +73,8 @@ public class Intake extends RobotPart {
     public void lock(){
         lock.moveTo(1.0);
     }
+//    public void lockTime(double power, double time){lock.move}
+
 
     public void unlock(){
         lock.moveTo(0.71);

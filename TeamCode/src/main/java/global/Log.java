@@ -43,9 +43,9 @@ public interface Log extends Common {
         synchronized (telemetryQueue) {
             Map.Entry<String, Supplier<Object>> entry;
             while ((entry = telemetryQueue.poll()) != null) {
-                telemetry.get().addData(entry.getKey(), entry.getValue().get());
+                Qtelemetry.get().addData(entry.getKey(), entry.getValue().get());
             }
-            telemetry.get().update();
+            Qtelemetry.get().update();
         }
     }
 
