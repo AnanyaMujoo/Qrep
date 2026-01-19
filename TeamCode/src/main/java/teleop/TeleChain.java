@@ -75,6 +75,9 @@ public interface TeleChain {
 //            stage(turret, () -> turret.shoot(0.8), 2),
 //            stage(turret, intake,  () -> {turret.shoot(0.9); intake.feed(1.0); }, 0.2)
     );
+    ChainMaker ShootAuto = () -> new Chain(
+            stage(intake, () -> intake.feed(-1), 0.05),
+            stage(intake, intake::unlock, 0.1));
  ChainMaker JustIntake = () -> new Chain(
          stage(intake, () -> intake.intakeAndFeed(1),  1)
          );

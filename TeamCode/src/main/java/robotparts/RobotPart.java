@@ -1,21 +1,13 @@
 package robotparts;
 
-import static global.Constants.ALWAYS_FALSE;
-import static global.Constants.EMPTY_RUNNABLE;
-
-import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import java.sql.Time;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.function.Supplier;
 
-import chains.Stage;
 import global.Common;
 import robotparts.electronics.ColorSensor;
 import robotparts.electronics.Electronic;
@@ -24,7 +16,6 @@ import robotparts.electronics.MotorWithEncoder;
 import robotparts.electronics.MotorWithEncoderRotational;
 import robotparts.electronics.PositionalServo;
 import robotparts.electronics.PositionalServoGroup;
-import utility.Timer;
 
 public abstract class RobotPart implements Common {
 
@@ -51,7 +42,7 @@ public abstract class RobotPart implements Common {
         return electronic;
     }
     public Motor createMotor(String name, DcMotor.Direction dir, DcMotor.ZeroPowerBehavior zp) {
-        return addElectronic(new Motor(hardwareMap.get().get(DcMotorEx.class, name), dir, zp));
+        return addElectronic(new Motor(QhardwareMap.get().get(DcMotorEx.class, name), dir, zp));
     }
 
 
@@ -61,7 +52,7 @@ public abstract class RobotPart implements Common {
              boolean invertedEncoder, double pulleyRadius, double motorToPulleyGearRatio,
              double maximumDistance, double snapToZeroPower, double snapToZeroTime,
              double snapToZeroDistance){
-        return addElectronic(new MotorWithEncoder(hardwareMap.get().get(DcMotorEx.class, name),
+        return addElectronic(new MotorWithEncoder(QhardwareMap.get().get(DcMotorEx.class, name),
                 dir, zpb, invertedEncoder, pulleyRadius, motorToPulleyGearRatio, maximumDistance,
                 snapToZeroPower, snapToZeroTime, snapToZeroDistance));
     }
@@ -69,12 +60,12 @@ public abstract class RobotPart implements Common {
     public MotorWithEncoderRotational createMotorWithEncoderRotational
             (String name, DcMotor.Direction dir, DcMotor.ZeroPowerBehavior zpb,
              boolean invertedEncoder,double encoderTicksPerRevolution, double motorToOutputGearRatio){
-        return addElectronic(new MotorWithEncoderRotational(hardwareMap.get().get(DcMotorEx.class, name),
+        return addElectronic(new MotorWithEncoderRotational(QhardwareMap.get().get(DcMotorEx.class, name),
                 dir, zpb, invertedEncoder, encoderTicksPerRevolution, motorToOutputGearRatio));
     }
 
     public PositionalServo createPositionalServo(String name, Servo.Direction dir){
-        return addElectronic(new PositionalServo(hardwareMap.get().get(Servo.class, name), dir));
+        return addElectronic(new PositionalServo(QhardwareMap.get().get(Servo.class, name), dir));
     }
 
     public PositionalServoGroup createPositionalServoGroup(String name1, Servo.Direction dir1, String name2, Servo.Direction dir2){
@@ -82,7 +73,7 @@ public abstract class RobotPart implements Common {
     }
 
     public ColorSensor createColorSensor(String name){
-        return addElectronic(new ColorSensor(hardwareMap.get().get(NormalizedColorSensor.class, name)));
+        return addElectronic(new ColorSensor(QhardwareMap.get().get(NormalizedColorSensor.class, name)));
     }
 
     public void takeAccessFromMainThread(){ electronics.forEach(Electronic::takeAccessFromMainThread); }

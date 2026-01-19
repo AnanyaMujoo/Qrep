@@ -1,23 +1,17 @@
 package robotparts.hardware;
 
-import com.qualcomm.hardware.bosch.BHI260IMU;
-import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.limelightvision.LLResult;
-import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.IMU;
 import elements.FieldSide;
 import static global.General.fieldSide;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
-import org.firstinspires.ftc.robotcore.external.navigation.Position;
+
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 import geometry.Pose;
-import geometry.Vector;
 import robotparts.RobotPart;
 import robotparts.electronics.Motor;
 import robotparts.electronics.MotorWithEncoderRotational;
@@ -57,10 +51,10 @@ public class Turret extends RobotPart {
         shooter = createMotorWithEncoderRotational("sh", MOTOR_FORWARD, MOTOR_FLOAT, false, 28.0, 1);
         timer.reset();
         timer2.reset();
-        limey = hardwareMap.get().get(Limelight3A.class, "shuhulsdumb");
+        limey = QhardwareMap.get().get(Limelight3A.class, "shuhulsdumb");
         limey.pipelineSwitch(8);
         limey.start();
-        imu = hardwareMap.get().get(IMU.class, "imu");
+        imu = QhardwareMap.get().get(IMU.class, "imu");
         RevHubOrientationOnRobot revHubOrientationOnRobot = new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.LEFT, RevHubOrientationOnRobot.UsbFacingDirection.UP);
         imu.initialize(new IMU.Parameters(revHubOrientationOnRobot));
     }
