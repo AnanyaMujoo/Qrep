@@ -2,145 +2,108 @@ package teleop.testopmodes;
 
 import static robotparts.RobotConfig.turret;
 import static robotparts.RobotConfig.intake;
-
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
-
-import geometry.Pose;
 import robotparts.hardware.Turret;
 import teleop.Tele;
 import teleop.teleutil.Button;
+import geometry.Pose;
 
-@TeleOp(name = "ShooterLockOnTest", group = "Tuning")
+@TeleOp(name = "KickstartBlitzTuner", group = "Tuning")
 public class ShooterTuner extends Tele {
 
-    // --- TUNING VARIABLES ---
-    private double p = 14.0;
-    private double f = 14.5;
+    private double p = 75.0;
+    private double f = 13.7;
+    private double successionCoeff = 0.04;
+    private double stepTime = 0.30; // Time between Ball 1 -> 2 and Ball 2 -> 3
 
-    // --- TEST VARIABLES ---
-    private boolean useTargeting = false;
-    private double manualRPM = 1500;
-
-    // --- EXACT QBIT LOGIC VARIABLES ---
-    // These mimic the AtomicReferences in QbitOp
-    private double currentShootError = 0;
-    private double currentTurnError = 0;
-    private ElapsedTime stabilityTimer = new ElapsedTime();
-
-    // --- MENU STATE ---
-    private int editMode = 0;
-    private String editName = "F (Feedforward)";
-    private double multiplier = 0.5;
+    private boolean shooterActive = false;
+    private boolean sequenceRunning = false;
+    private ElapsedTime sequenceTimer = new ElapsedTime();
+    private int currentStep = 0;
+    private double lastVelocity = 0;
 
     @Override
     public void initTele() {
-        gpA.onClick(Button.Y, () -> { editMode = 0; editName = "F (Feedforward)"; multiplier = 0.5; });
-        gpA.onClick(Button.X, () -> { editMode = 1; editName = "P (Proportional)"; multiplier = 1.0; });
-        gpA.onClick(Button.A, () -> { editMode = 2; editName = "Manual RPM"; multiplier = 50.0; });
-
-        gpA.onClick(Button.DPAD_UP, () -> adjustValue(1));
-        gpA.onClick(Button.DPAD_DOWN, () -> adjustValue(-1));
-
-        // Toggle Limelight Logic
-        gpA.onClick(Button.LEFT_BUMPER, () -> {
-            useTargeting = !useTargeting;
-            stabilityTimer.reset();
+        gpA.onClick(Button.B, () -> {
+            shooterActive = !shooterActive;
+            sequenceRunning = false;
+            currentStep = 0;
+            if (!shooterActive) {
+                turret.shooter.setTargetVelocity(0);
+                turret.turn(0);
+            }
         });
 
-        // Stop
-        gpA.onClick(Button.B, () -> { manualRPM = 0; turret.shooter.setTargetVelocity(0); });
-
-        turret.shooter.softResetEncoder();
-        display("Status", "Ready.");
-    }
-
-    private void adjustValue(int dir) {
-        if(editMode == 0) f = Math.max(0, f + (dir * multiplier));
-        if(editMode == 1) p = Math.max(0, p + (dir * multiplier));
-        if(editMode == 2) manualRPM += (dir * multiplier);
+        // TUNE P (D-pad) | TUNE SUCCESSION (Bumpers)
+        gpA.onClick(Button.DPAD_UP, () -> p += 5.0);
+        gpA.onClick(Button.DPAD_DOWN, () -> p -= 5.0);
+        gpA.onClick(Button.RIGHT_BUMPER, () -> successionCoeff += 0.01);
+        gpA.onClick(Button.LEFT_BUMPER, () -> successionCoeff -= 0.01);
     }
 
     @Override
     public void loopTele() {
-        // 1. INTAKE (Direct Control)
         intake.intakeAndFeed(gpA.rt);
 
-        // 2. UPDATE PIDF
-        turret.shooter.setPIDF(p, 0, 0, f);
+        // 1. TURRET TARGETING (Original Qbit Math)
+        Pose pose = turret.getPoseWithLimey();
+        double distance = pose.getY();
+        double angle = pose.angle;
 
-        // 3. TARGETING LOGIC (COPIED FROM QBITOP)
-        double targetRPM = manualRPM;
-        double turnPower = 0;
-
-        // Reset errors for this loop
-        currentTurnError = 0;
-
-        if (useTargeting) {
-            Pose pose = turret.getPoseWithLimey();
-            double distance = pose.getY();
-
-            if (distance > 0) {
-                // --- TURNING MATH (QbitOp) ---
-                double angle = pose.getAngle();
-                double targetAngle = Math.toDegrees(Math.atan(Turret.LIMEY_LEFT_DISTANCE/distance));
-                double error = targetAngle - angle;
-
-                // Save this error for the logic check later
-                currentTurnError = error;
-
-                // Turn Power Calc
-                turnPower = (-Math.signum(error)*Turret.TURRET_TARGETING_REST_POWER - error*Turret.TURRET_TARGETING_K)*0.5;
-
-                // --- SHOOTER MATH (QbitOp) ---
-                targetRPM = turret.getShooterRPMFromLimelight() * Turret.SHOOT_RATIO_1;
+        if (shooterActive && distance > 10) {
+            double targetAngle = Math.toDegrees(Math.atan(Turret.LIMEY_LEFT_DISTANCE / distance));
+            double error = targetAngle - angle;
+            if (Math.abs(error) > 0.8) {
+                double power = (-Math.signum(error) * Turret.TURRET_TARGETING_REST_POWER - error * Turret.TURRET_TARGETING_K) * 0.5;
+                turret.turn(power);
+            } else {
+                turret.turn(0.0);
             }
-        }
-
-        // Apply Motor Powers
-        if(Math.abs(currentTurnError) > 1) {
-            turret.turn(turnPower);
         } else {
-            turret.turn(0.0);
-        }
-        turret.shooter.setTargetVelocity(targetRPM);
-
-        // 4. "IS READY" LOGIC (COPIED FROM TURRET.JAVA)
-        // Logic: if(turnError > 2 || shootError > 80) reset(); else return timer > 0.4
-
-        currentShootError = Math.abs(targetRPM - turret.shooter.getVelocity());
-        double absTurnError = Math.abs(currentTurnError);
-
-        boolean isBad = (absTurnError > 2.0) || (currentShootError > 80.0);
-
-        if (isBad) {
-            stabilityTimer.reset(); // Reset if we fail EITHER condition
+            turret.turn(0);
         }
 
-        boolean systemReady = !isBad && (stabilityTimer.seconds() > 0.4);
+        // 2. SHOOTER VELOCITY & DETECTION
+        double actual = turret.shooter.getVelocity();
+        double baseTarget = shooterActive ? turret.getShooterRPMFromLimelight() * Turret.SHOOT_RATIO_1 : 0;
 
-        // 5. DISPLAY
-        PIDFCoefficients real = turret.shooter.getPIDF();
+        // KICKSTART DETECTION: Detect first ball to start the timer
+        if (shooterActive && !sequenceRunning && (lastVelocity - actual) > 140) {
+            sequenceRunning = true;
+            sequenceTimer.reset();
+        }
+        lastVelocity = actual;
 
-        display("MODE", useTargeting ? "AUTO (Limelight)" : "MANUAL");
-        display("EDITING", editName);
+        // 3. THE TIMED SEQUENCE (Post-Kickstart)
+        double finalTarget = baseTarget;
 
-        display("----- STATUS -----", "-");
-        if (systemReady) {
-            display("SYSTEM READY?", "YES !!!");
-            display("Hold Time", stabilityTimer.seconds() + "s");
-        } else {
-            display("SYSTEM READY?", "NO");
-            // Show exactly why it failed
-            if (currentShootError > 80) display("FAIL REASON", "RPM Error: " + (int)currentShootError + " > 80");
-            else if (absTurnError > 2) display("FAIL REASON", "Turn Error: " + String.format("%.1f", absTurnError) + " > 2");
-            else display("FAIL REASON", "Stabilizing... " + String.format("%.2f", stabilityTimer.seconds()) + "s");
+        if (sequenceRunning) {
+            double time = sequenceTimer.seconds();
+
+            if (time < stepTime) {
+                currentStep = 1; // Powering up for Ball 2
+            } else if (time < stepTime * 2) {
+                currentStep = 2; // Powering up for Ball 3
+            } else {
+                // Done with 3 balls, return to base speed
+                sequenceRunning = false;
+                currentStep = 0;
+            }
+            finalTarget = baseTarget * (1.0 + (currentStep * successionCoeff));
         }
 
-        display("----- DATA -----", "-");
-        display("Target RPM", targetRPM);
-        display("Actual RPM", turret.shooter.getVelocity());
-        display("P / F", p + " / " + f);
+        // Safety cap to prevent 4000 RPM spikes
+        if (finalTarget > 3600) finalTarget = 3600;
+
+        turret.shooter.setPIDF(p, 0, 0, f);
+        turret.shooter.setTargetVelocity(shooterActive ? finalTarget : 0);
+
+        // --- TELEMETRY ---
+        display("Mode", !shooterActive ? "IDLE" : (sequenceRunning ? "BLITZING" : "AWAITING BALL 1"));
+        display("Step", (currentStep + 1) + " / 3");
+        display("P Value", p);
+        display("Ratio Coeff", String.format("%.2f", successionCoeff));
+        display("Actual/Target", (int)actual + " / " + (int)finalTarget);
     }
 }

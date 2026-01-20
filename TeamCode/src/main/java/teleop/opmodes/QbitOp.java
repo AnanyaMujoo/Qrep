@@ -39,6 +39,8 @@ public class QbitOp extends Tele {
 //        gpA.onClick(Button.LEFT_BUMPER, () -> intake.unlock());
 
 //        gpB.onClickToggle(Button.X, () -> turret.shoot(0.7), () -> turret.shoot(0) );
+        turret.shooter.setPIDF(25, 0, 0, 13.5);
+
         gpA.onClick(Button.Y, Intake);
         gpA.onClick(Button.X, Shoot);
 //        gpA.onClick(Button.X, Shoot2);

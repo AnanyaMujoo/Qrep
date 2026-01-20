@@ -121,7 +121,7 @@ public class Turret extends RobotPart {
         double wheelRadius = 0.1016/2;  // 4-inch wheel → meters
         double rpmEfficiency = 1.23;      // fudge factor for slip, compression, etc.
 
-        return Math.max(2000, Math.min(3000, (2*velocity / (2 * Math.PI * wheelRadius)) * 60 * rpmEfficiency));
+        return Math.max(2000, Math.min(3750, (2*velocity / (2 * Math.PI * wheelRadius)) * 60 * rpmEfficiency));
 
     }
 
