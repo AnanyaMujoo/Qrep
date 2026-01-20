@@ -33,7 +33,7 @@ import static teleop.opmodes.QbitOp.oldTarget;
 import static teleop.opmodes.QbitOp.shooterTarget;
 import static teleop.opmodes.QbitOp.turnError;
 
-@Autonomous(name = "Pedro Pathing Autonomous", group = "Autonomous")
+@Autonomous(name = "QAuto", group = "Autonomous")
 @Configurable
 public class QAuto extends OpMode implements Initializer {
     private TelemetryManager panelsTelemetry;
