@@ -71,8 +71,8 @@ public class GamepadHandler implements Common {
         rt = gamepad.right_trigger;
         lt = gamepad.left_trigger;
     }
-}
 
+}
 
 
 

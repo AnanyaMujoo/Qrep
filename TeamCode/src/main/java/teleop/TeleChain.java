@@ -11,8 +11,47 @@ import chains.Chain;
 import chains.ChainMaker;
 import chains.Stage;
 import teleop.opmodes.QbitOp;
+import teleop.opmodes.QbitOpCopy;
 
 public interface TeleChain {
+    // --- REVAMPED INTAKE: Starts targeting immediately and runs intake ---
+    ChainMaker RevampedIntake = () -> new Chain(
+            stage(intake, intake::lock),
+            stage(intake, () -> QbitOpCopy.isTurretTargeting.set(true)),
+            // This stage will run CONTINUOUSLY until the condition is met
+            stage(intake, () -> {
+                intake.intake(1.0);
+                intake.feed(1.0);
+            }, () -> intake.getDetectDistance() < 4.1),
+            // Stop once ball is found
+            stage(intake, () -> {
+                intake.intake(0);
+                intake.feed(0);
+            })
+    );
+    // --- REVAMPED SHOOT: Waits for aim, then triggers the succession brain ---
+    ChainMaker RevampedShoot = () -> new Chain(
+            stage(intake, () -> intake.feed(-1), 0.05), // Anti-jam flick
+            stage(intake, intake::unlock, 0.1),
+            // WAIT for alignment and RPM stability
+            stage(intake, () -> {}, () -> {
+                double error = QbitOpCopy.turnError.get();
+                double velError = Math.abs(turret.shooter.getVelocity() - QbitOpCopy.shooterTarget.get());
+                return Math.abs(error) < 1.5 && velError < 150;
+            }),
+            // Trigger the intake - the loopTele succession logic handles the rest
+            stage(intake, () -> intake.intakeAndFeed(1), 1.2),
+            stage(intake, () -> QbitOpCopy.isTurretTargeting.set(false))
+    );
+
+    // --- REVAMPED BLITZ: Pure high-speed firing ---
+    ChainMaker RevampedBlitz = () -> new Chain(
+            stage(intake, intake::unlock),
+            stage(intake, () -> QbitOpCopy.isTurretTargeting.set(true)),
+            stage(intake, () -> intake.intakeAndFeed(1), 1.5), // Brute force feed for 1.5s
+            stage(intake, () -> QbitOpCopy.isTurretTargeting.set(false)),
+            stage(intake, intake::stop)
+    );
 
 //    ChainMaker Test2 = () -> new Chain(
 //            stage(drive, drive.moveRunnable(0.1, 0.2, 0.3), 1),
@@ -87,6 +126,7 @@ public interface TeleChain {
             stage(intake, () -> QbitOp.isTurretTargeting.set(false)),
             stage(intake, () -> QbitOp.isTurret23Mode.set(false))
     );
+
 
  ChainMaker JustIntake = () -> new Chain(
          stage(intake, () -> intake.intakeAndFeed(1),  1)
