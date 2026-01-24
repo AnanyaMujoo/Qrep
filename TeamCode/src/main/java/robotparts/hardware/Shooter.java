@@ -2,15 +2,18 @@ package robotparts.hardware;
 
 import robotparts.RobotPart;
 import robotparts.electronics.Motor;
+import robotparts.electronics.MotorWithEncoder;
+import robotparts.electronics.MotorWithEncoderRotational;
 
 public class Shooter extends RobotPart {
 
-    public Motor topRight, topLeft, bottomRight, bottomLeft;
+    public Motor bottomRight, bottomLeft;
+    public MotorWithEncoderRotational topRight, topLeft;
 
     @Override
     public void init() {
-        topRight = createMotor("topr", MOTOR_REVERSE, MOTOR_FLOAT);
-        topLeft = createMotor("topl", MOTOR_FORWARD, MOTOR_FLOAT);
+        topRight = createMotorWithEncoderRotational("topr", MOTOR_REVERSE, MOTOR_FLOAT, false,);
+        topLeft = createMotorWithEncoderRotational("topl", MOTOR_FORWARD, MOTOR_FLOAT);
         bottomRight = createMotor("botr", MOTOR_REVERSE, MOTOR_FLOAT);
         bottomLeft = createMotor("botl", MOTOR_FORWARD, MOTOR_FLOAT);
 
