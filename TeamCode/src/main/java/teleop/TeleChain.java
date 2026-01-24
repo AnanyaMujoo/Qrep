@@ -6,33 +6,49 @@ import static robotparts.RobotConfig.shooter;
 
 import chains.Chain;
 import chains.ChainMaker;
+import teleop.opmodes.QtechOp;
 
 public interface TeleChain {
 
-    ChainMaker shootFar = () -> new Chain(
-            //TODO shootFar
-            stage(drive, drive.moveRunnable(0.6, 0, 0), 0.2),
-            stage(shooter, shooter.intakeRunnable(-0.7), 1),
-            stage(drive, drive.moveRunnable(-0.7, 0,0),3),
-            stage(drive, drive.moveRunnable(0, 0,0.7),1),
-
-            stage(shooter, shooter.shootRunnable(0.8),2),
-            stage(shooter, shooter.shootAndIntakeRunnable(0.8, 0.8),1)
-            );
-
-
-    ChainMaker shootClose = () -> new Chain(
-            //TODO shootClose
-            stage(drive, drive.moveRunnable(0.1, 0.2, 0.3), 1),
-            //stage 1 from identified position move to correvt angle  with drive move runnable
-            stage(shooter, shooter.shootRunnable(1))
-            //stage 2 shoot at correct power for angle+position
+    ChainMaker Intake = () -> new Chain(
+            stage(shooter, shooter.intakeRunnable(-0.5), 0.1),
+            stage(shooter, shooter.setShootTarget(2000))
     );
 
-    //TODO make a chainmaker for shooting manually from not identified positions
-    ChainMaker shootManual = () -> new Chain(
-            stage(shooter, shooter.shootRunnable(1))
+    ChainMaker Shoot = () -> new Chain(
+            stage(shooter, shooter.setShootTarget(2150)),
+            stage(shooter, () -> {}, shooter.isNotReady(2150)),
+            stage(shooter, shooter.setShootTarget(2300)),
+            stage(shooter, shooter.intakeRunnable(-1), 1),
+            stage(shooter, shooter.resetShootMode())
     );
+
+
+
+//    ChainMaker shootFar = () -> new Chain(
+//            //TODO shootFar
+//            stage(drive, drive.moveRunnable(0.6, 0, 0), 0.2),
+//            stage(shooter, shooter.intakeRunnable(-0.7), 1),
+//            stage(drive, drive.moveRunnable(-0.7, 0,0),3),
+//            stage(drive, drive.moveRunnable(0, 0,0.7),1),
+//
+//            stage(shooter, shooter.shootRunnable(0.8),2),
+//            stage(shooter, shooter.shootAndIntakeRunnable(0.8, 0.8),1)
+//            );
+//
+//
+//    ChainMaker shootClose = () -> new Chain(
+//            //TODO shootClose
+//            stage(drive, drive.moveRunnable(0.1, 0.2, 0.3), 1),
+//            //stage 1 from identified position move to correvt angle  with drive move runnable
+//            stage(shooter, shooter.shootRunnable(1))
+//            //stage 2 shoot at correct power for angle+position
+//    );
+//
+//    //TODO make a chainmaker for shooting manually from not identified positions
+//    ChainMaker shootManual = () -> new Chain(
+//            stage(shooter, shooter.shootRunnable(1))
+//    );
 //    ChainMaker Test2 = () -> new Chain(
 //            stage(drive, drive.moveRunnable(0.1, 0.2, 0.3), 1),
 //            stage(encoderTest.setTargetRunnable(10, 0.5), 3),

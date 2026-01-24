@@ -1,7 +1,10 @@
 repositories {
     mavenCentral()
     google() // Needed for androidx
-    maven { url = "https://mymaven.bylazar.com/releases" }
+    maven {
+        url = "http://mymaven.bylazar.com/releases"
+        allowInsecureProtocol = true
+    }
 
 }
 
@@ -22,4 +25,3 @@ dependencies {
 
 
 }
-

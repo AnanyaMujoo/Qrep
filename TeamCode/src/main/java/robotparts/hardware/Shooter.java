@@ -1,34 +1,46 @@
 package robotparts.hardware;
 
+import java.util.function.Supplier;
+
 import robotparts.RobotPart;
 import robotparts.electronics.Motor;
 import robotparts.electronics.MotorWithEncoder;
 import robotparts.electronics.MotorWithEncoderRotational;
+import teleop.opmodes.QtechOp;
+import utility.Timer;
 
 public class Shooter extends RobotPart {
 
     public Motor bottomRight, bottomLeft;
     public MotorWithEncoderRotational topRight, topLeft;
 
+    public Timer timer = new Timer();
+
     @Override
     public void init() {
-        topRight = createMotorWithEncoderRotational("topr", MOTOR_REVERSE, MOTOR_FLOAT, false,);
-        topLeft = createMotorWithEncoderRotational("topl", MOTOR_FORWARD, MOTOR_FLOAT);
+        topRight = createMotorWithEncoderRotational("topr", MOTOR_REVERSE, MOTOR_FLOAT, true, 28.0, 1);
+        topLeft = createMotorWithEncoderRotational("topl", MOTOR_FORWARD, MOTOR_FLOAT, false, 28.0, 1);
         bottomRight = createMotor("botr", MOTOR_REVERSE, MOTOR_FLOAT);
         bottomLeft = createMotor("botl", MOTOR_FORWARD, MOTOR_FLOAT);
 
-
+        timer.reset();
     }
 
     public void intake(double forwardPower) {
         bottomRight.setPower(forwardPower);
         bottomLeft.setPower(forwardPower);
-
     }
 
     public void shoot(double forwardPower) {
         topRight.setPower(forwardPower);
         topLeft.setPower(forwardPower);
+    }
+    public Runnable setShootTarget(double rpm){
+        return () -> {topLeft.setTargetVelocity(rpm); topRight.setTargetVelocity(rpm);};
+    }
+
+    public Runnable resetShootMode(){
+        return () -> {topLeft.resetRunMode(); topRight.resetRunMode(); shoot(0.0);};
     }
 
     public void shootAndIntake(double powerIntake, double powerShooter) {
@@ -47,6 +59,22 @@ public class Shooter extends RobotPart {
     public Runnable shootAndIntakeRunnable(double powerIntake, double powerShooter) {
         return () -> shootAndIntake(powerIntake, powerShooter);
     }
+
+
+    public Supplier<Boolean> isNotReady(double target) {
+        return () -> {
+            double shootErrorRight = Math.abs(target - topRight.getVelocity());
+            double shootErrorLeft = Math.abs(target - topLeft.getVelocity());
+
+            if(shootErrorLeft > 100  || shootErrorRight > 100){
+                timer.reset();
+            }else return timer.seconds() < 0.5;
+
+            return true;
+        };
+    }
+
+
 
     // 1. Add a variable to store the manual power (Default 0.5 or 50%)
     public double manualPower = 0.5;

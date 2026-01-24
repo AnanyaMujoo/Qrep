@@ -1,9 +1,9 @@
 package auto.opmodes;
 
 import static robotparts.RobotConfig.drive;
-import static teleop.TeleChain.shootClose;
-import static teleop.TeleChain.shootFar;
-import static teleop.TeleChain.shootManual;
+//import static teleop.TeleChain.shootClose;
+//import static teleop.TeleChain.shootFar;
+//import static teleop.TeleChain.shootManual;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
@@ -32,7 +32,7 @@ public class TestAuto extends Auto {
         driveTime(0,0,0,0);
         //make drive to where you want to go
 
-        addChain(shootFar);
+//        addChain(shootFar);
         //make a chain for intake, for shooting
         //lmk what you want it to do and ill tell you how to make it
 
