@@ -7,6 +7,7 @@ import static pedroPathing.QAuto.PathState.DRIVE_INTAKE1_WAIT;
 import static pedroPathing.QAuto.PathState.DRIVE_INTAKE2_X;
 import static pedroPathing.QAuto.PathState.DRIVE_INTAKE3_X;
 import static pedroPathing.QAuto.PathState.DRIVE_SHOOT2;
+import static pedroPathing.QAuto.PathState.SHOOT1;
 import static pedroPathing.QAuto.PathState.SHOOT1_WAIT;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -80,7 +81,7 @@ public class QAuto extends OpMode implements Initializer {
         DRIVE_SHOOT3,
         DRIVE_INTAKE3_X,
         DRIVE_INTAKE3_Y,
-        DRIVE_SHOOT4,
+        DRIVE_SHOOT4, SHOOT1,
     }
 
     public void setPathState(PathState runState){
@@ -90,9 +91,10 @@ public class QAuto extends OpMode implements Initializer {
 
     @Override
     public void loop() {
-        isTurretTargeting.set(false);
+        isTurretTargeting.set(true);
         follower.update();
         autonomousPathUpdate();
+        turret.shooter.setPIDF(25, 0, 0.00000, 13.5);
 
         // --- Turret Logic ---
         if(isTurretTargeting.get()){
@@ -157,7 +159,7 @@ public class QAuto extends OpMode implements Initializer {
         public PathChain Path1, Path2, Path3, Path4, Path5, Path6, Path7, Path8,Path9;
         public Paths(Follower follower) {
             Path1 = follower.pathBuilder().addPath(
-                            new BezierLine(new Pose(-56.5, -46.5), new Pose(-14, -14))
+                            new BezierLine(new Pose(-56.5, -46.5), new Pose(0, 0))
 //            new BezierLine(new Pose(-56.5, -46.5), new Pose(0, 0))
                     ).setLinearHeadingInterpolation(Math.toRadians(225), Math.toRadians(225))
                     .setGlobalDeceleration(3)
@@ -226,28 +228,28 @@ public class QAuto extends OpMode implements Initializer {
             case DRIVE_SHOOT1:
                 follower.followPath(paths.Path1, true);
 //                isTurretTargeting.set(true); // Enable turret while driving
-                setPathState(SHOOT1_WAIT);
+                setPathState(SHOOT1);
                 break;
 
-//            case SHOOT1:
-//                // Wait for path to finish AND turret to align
-//                if(!follower.isBusy()) {
-//                    // Check if aligned (error < 2 degrees) OR timeout (2 secs)
-//
-//                        ShootAuto.run(); // 1. Run the command ONCE
-//
-//                        // 2. Immediately switch to WAIT state.
-//                        // This prevents ShootAuto from being called again in the next loop.
-//                        setPathState(SHOOT1_WAIT);
-//
-//                }
-//                break;
-//
+            case SHOOT1:
+                // Wait for path to finish AND turret to align
+                if(!follower.isBusy()) {
+                    // Check if aligned (error < 2 degrees) OR timeout (2 secs)
+
+                        ShootAuto.run(); // 1. Run the command ONCE
+
+                        // 2. Immediately switch to WAIT state.
+                        // This prevents ShootAuto from being called again in the next loop.
+                        setPathState(SHOOT1_WAIT);
+
+                }
+                break;
+
             case SHOOT1_WAIT:
                 // 3. Stay in this state for 1 second to let the ShootAuto thread finish.
                 // Since setPathState resets the timer, getElapsedTimeSeconds starts at 0 here.
                 if (pathTimer.getElapsedTimeSeconds() > 2.0) {
-                    setPathState(PathState.DRIVE_INTAKE1);
+                    setPathState(PathState.DONE);
                 }
                 break;
 

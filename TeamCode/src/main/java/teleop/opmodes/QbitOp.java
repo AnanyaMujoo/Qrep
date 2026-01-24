@@ -29,6 +29,9 @@ public class QbitOp extends Tele {
 
     public static AtomicBoolean isTurretTargeting = new AtomicBoolean(false);
     public static AtomicBoolean isTurret23Mode = new AtomicBoolean(false);
+    private double ratio12 = 1.05;
+    private double ratio23 = 1.10;
+    public static AtomicBoolean readyToShoot = new AtomicBoolean(false);
 
     @Override
     public void initTele() {
@@ -39,7 +42,7 @@ public class QbitOp extends Tele {
 //        gpA.onClick(Button.LEFT_BUMPER, () -> intake.unlock());
 
 //        gpB.onClickToggle(Button.X, () -> turret.shoot(0.7), () -> turret.shoot(0) );
-        turret.shooter.setPIDF(25, 0, 0, 13.5);
+        turret.shooter.setPIDF(25, 0, 0.00000, 13.5);
 
         gpA.onClick(Button.Y, Intake);
         gpA.onClick(Button.X, Shoot);
@@ -50,6 +53,7 @@ public class QbitOp extends Tele {
 
 //        gpA.onClick(Button.B, () -> shooterTarget.set(3000.0));
 
+        readyToShoot.set(false);
 
 
 
@@ -64,6 +68,7 @@ public class QbitOp extends Tele {
         turnError.set(0.0);
     }
 
+
     @Override
     public void startTele() {
 //        turret.limey.start();
@@ -77,8 +82,15 @@ public class QbitOp extends Tele {
 
         drive.updateOdometry();
         display("Odo X (cm)", drive.getX());
+        display("Distance", turret.getDistance());
         display("Odo Y (cm)", drive.getY());
         display("Odo H (deg)", drive.getHeading());
+        display("Odo X | Y | H", String.format("%.1f | %.1f | %.1f", drive.getX(), drive.getY(), drive.getHeading()));
+        display("Color Sensor Dist", intake.getDetectDistance());
+        display("Ball Detected?", intake.getDetectDistance() < 4.1);
+        display("Shooter Target | Actual", shooterTarget.get() + " | " + turret.shooter.getVelocity());
+        display("Turn Error", turnError.get());
+        display("READY TO BLITZ", readyToShoot.get() ? "!!! YES !!!" : "AIMING...");
 //        display("shootertqarget", shooterTarget.get());
 //        display("shooter velocity", turret.shooter.getVelocity());
 //        display("shooter velocity error", shooterTarget.get()-turret.shooter.getVelocity());
@@ -149,7 +161,10 @@ public class QbitOp extends Tele {
                 error = targetAngle - angle;
                 turnError.set(error);
 
+                double targetRPM = turret.getShooterRPMFromLimelight();
+                double actual = turret.shooter.getVelocity();
 
+                readyToShoot.set(Math.abs(error) < 1.5 && Math.abs(actual - targetRPM) < 150);
 
 
 
@@ -186,7 +201,7 @@ public class QbitOp extends Tele {
 //                }else{
 //                    shooterTarget.set(rpm * Turret.SHOOT_RATIO_23);
 //                }
-                double targetRPM = turret.getShooterRPMFromLimelight();
+                targetRPM = turret.getShooterRPMFromLimelight();
                 shooterTarget.set(targetRPM);
                 if(!isTurret23Mode.get()) {
                     shooterTarget.set(targetRPM * Turret.SHOOT_RATIO_1);
@@ -197,6 +212,8 @@ public class QbitOp extends Tele {
             }else{
                 turret.turn(0.0);
                 shooterTarget.set(2000.0);
+                readyToShoot.set(false);
+
             }
         }else{
             turret.turn(0.0);

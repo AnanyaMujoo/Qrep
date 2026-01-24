@@ -3,7 +3,6 @@ package teleop.testopmodes;
 import static robotparts.RobotConfig.turret;
 import static robotparts.RobotConfig.intake;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.util.ElapsedTime;
 import robotparts.hardware.Turret;
 import teleop.Tele;
 import teleop.teleutil.Button;
@@ -12,41 +11,52 @@ import geometry.Pose;
 @TeleOp(name = "KickstartBlitzTuner", group = "Tuning")
 public class ShooterTuner extends Tele {
 
-    private double p = 75.0;
-    private double f = 13.7;
-    private double successionCoeff = 0.04;
-    private double stepTime = 0.30; // Time between Ball 1 -> 2 and Ball 2 -> 3
+    private double p = 50.0; // Proportional Gain
+    private double f = 13.7; // Feedforward
+
+    private double ratio12 = 1.20; // Ball 1 -> 2
+    private double ratio23 = 1.30; // Ball 2 -> 3
+
+    private double recoveryBoost = 1.08;
+    private double dipThreshold = 40.0;
+    private double recoveryTolerance = 50.0;
 
     private boolean shooterActive = false;
-    private boolean sequenceRunning = false;
-    private ElapsedTime sequenceTimer = new ElapsedTime();
-    private int currentStep = 0;
+    private boolean isRecovering = false;
+    private int ballCount = 0;
     private double lastVelocity = 0;
 
     @Override
     public void initTele() {
+        // Toggle Shooter
         gpA.onClick(Button.B, () -> {
             shooterActive = !shooterActive;
-            sequenceRunning = false;
-            currentStep = 0;
+            isRecovering = false;
+            ballCount = 0;
             if (!shooterActive) {
                 turret.shooter.setTargetVelocity(0);
                 turret.turn(0);
             }
         });
 
-        // TUNE P (D-pad) | TUNE SUCCESSION (Bumpers)
-        gpA.onClick(Button.DPAD_UP, () -> p += 5.0);
-        gpA.onClick(Button.DPAD_DOWN, () -> p -= 5.0);
-        gpA.onClick(Button.RIGHT_BUMPER, () -> successionCoeff += 0.01);
-        gpA.onClick(Button.LEFT_BUMPER, () -> successionCoeff -= 0.01);
+        // --- TUNING P (Vertical D-Pad) ---
+        gpA.onClick(Button.DPAD_UP,   () -> p += 2.0);
+        gpA.onClick(Button.DPAD_DOWN, () -> p -= 2.0);
+
+        // --- TUNING RATIO 1-2 (Bumpers) ---
+        gpA.onClick(Button.RIGHT_BUMPER, () -> ratio12 += 0.01);
+        gpA.onClick(Button.LEFT_BUMPER,  () -> ratio12 -= 0.01);
+
+        // --- TUNING RATIO 2-3 (Horizontal D-Pad) ---
+        gpA.onClick(Button.DPAD_RIGHT,   () -> ratio23 += 0.01);
+        gpA.onClick(Button.DPAD_LEFT,    () -> ratio23 -= 0.01);
     }
 
     @Override
     public void loopTele() {
         intake.intakeAndFeed(gpA.rt);
 
-        // 1. TURRET TARGETING (Original Qbit Math)
+        // 1. TURRET TARGETING
         Pose pose = turret.getPoseWithLimey();
         double distance = pose.getY();
         double angle = pose.angle;
@@ -64,46 +74,53 @@ public class ShooterTuner extends Tele {
             turret.turn(0);
         }
 
-        // 2. SHOOTER VELOCITY & DETECTION
+        // 2. VELOCITY & DIP DETECTION
         double actual = turret.shooter.getVelocity();
         double baseTarget = shooterActive ? turret.getShooterRPMFromLimelight() * Turret.SHOOT_RATIO_1 : 0;
 
-        // KICKSTART DETECTION: Detect first ball to start the timer
-        if (shooterActive && !sequenceRunning && (lastVelocity - actual) > 140) {
-            sequenceRunning = true;
-            sequenceTimer.reset();
-        }
-        lastVelocity = actual;
+        double currentDip = lastVelocity - actual;
 
-        // 3. THE TIMED SEQUENCE (Post-Kickstart)
+        if (shooterActive && !isRecovering && currentDip > dipThreshold) {
+            isRecovering = true;
+            ballCount++;
+        }
+
+        // 3. MULTI-BALL TARGET LOGIC
         double finalTarget = baseTarget;
 
-        if (sequenceRunning) {
-            double time = sequenceTimer.seconds();
+        if (shooterActive) {
+            double stepTarget;
+            if (ballCount == 0)      stepTarget = baseTarget;
+            else if (ballCount == 1) stepTarget = baseTarget * ratio12;
+            else                     stepTarget = baseTarget * ratio23;
 
-            if (time < stepTime) {
-                currentStep = 1; // Powering up for Ball 2
-            } else if (time < stepTime * 2) {
-                currentStep = 2; // Powering up for Ball 3
+            if (isRecovering) {
+                finalTarget = stepTarget * recoveryBoost;
+                if (actual >= (stepTarget - recoveryTolerance)) {
+                    isRecovering = false;
+                    if (ballCount >= 3) ballCount = 0;
+                }
             } else {
-                // Done with 3 balls, return to base speed
-                sequenceRunning = false;
-                currentStep = 0;
+                finalTarget = stepTarget;
             }
-            finalTarget = baseTarget * (1.0 + (currentStep * successionCoeff));
         }
 
-        // Safety cap to prevent 4000 RPM spikes
-        if (finalTarget > 3600) finalTarget = 3600;
+        // Safety cap
+        if (finalTarget > 3800) finalTarget = 3800;
 
+        // Apply updated P-gain every loop
         turret.shooter.setPIDF(p, 0, 0, f);
         turret.shooter.setTargetVelocity(shooterActive ? finalTarget : 0);
+        lastVelocity = actual;
 
         // --- TELEMETRY ---
-        display("Mode", !shooterActive ? "IDLE" : (sequenceRunning ? "BLITZING" : "AWAITING BALL 1"));
-        display("Step", (currentStep + 1) + " / 3");
-        display("P Value", p);
-        display("Ratio Coeff", String.format("%.2f", successionCoeff));
+        display("--- PID & BLITZ ---", "");
+        display("P Gain", p);
+        display("Ratio 1-2", String.format("%.2f", ratio12));
+        display("Ratio 2-3", String.format("%.2f", ratio23));
+        display("--- STATUS ---", "");
+        display("Current Ball", (ballCount + 1));
+        display("Recovering?", isRecovering);
         display("Actual/Target", (int)actual + " / " + (int)finalTarget);
     }
 }

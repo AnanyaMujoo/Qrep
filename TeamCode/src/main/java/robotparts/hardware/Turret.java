@@ -44,7 +44,7 @@ public class Turret extends RobotPart {
     public static final double SHOOT_RATIO_1 = 1;
 
 
-    public static final double SHOOT_RATIO_23 = SHOOT_RATIO_1*1.6;
+    public static final double SHOOT_RATIO_23 = SHOOT_RATIO_1*1.3;
 
     @Override
     public void init() {
@@ -86,10 +86,14 @@ public class Turret extends RobotPart {
 //                        continue;
 //                    }
                     double ty = llResult.getTy();
-
+                    double angle = 0;
                     double distance = HEIGHT_DIFFERENCE/Math.tan(Math.toRadians(MOUNT_ANGLE+ty));
-                    double angle = llResult.getTx();
-
+                    if (fieldSide == FieldSide.BLUE) {
+                        angle = llResult.getTx()-1;
+                    }
+                    else{
+                        angle = llResult.getTx()+0.5;
+                    }
                     return new Pose(0, distance, angle);
 //                }
 
@@ -116,20 +120,33 @@ public class Turret extends RobotPart {
 
         return Math.sqrt(numerator / denominator);
     }
+    public double RPMScaler(double RPM){
+        double newRPM =2650.0/2800.0*RPM;
+        double inMin = 2800;
+        double inMax = 3200;
+        double outMin = 2650;
+        double outMax = 3300;
+        return outMin +(RPM - inMin)*(outMax-outMin)/(inMax-inMin);
+
+    }
 
     public double velocityToRPM(double velocity) {
         double wheelRadius = 0.1016/2;  // 4-inch wheel → meters
-        double rpmEfficiency = 1.23;      // fudge factor for slip, compression, etc.
+        double rpmEfficiency = 1.08;      // fudge factor for slip, compression, etc.
 
-        return Math.max(2000, Math.min(3750, (2*velocity / (2 * Math.PI * wheelRadius)) * 60 * rpmEfficiency));
-
+        return Math.max(2000, Math.min(3950, (2*velocity / (2 * Math.PI * wheelRadius)) * 60 * rpmEfficiency));
     }
 
     public double getShooterRPMFromLimelight() {
         Pose pose = getPoseWithLimey();           // uses Limelight
         double distanceMeters = pose.y / 100.0;   // cm → meters
         double velocity = calculateExitVelocity(distanceMeters);
-        return velocityToRPM(velocity);
+        return RPMScaler(velocityToRPM(velocity));
+    }
+    public double getDistance(){
+        Pose pose = getPoseWithLimey();           // uses Limelight
+        double distanceMeters = pose.y / 100.0;   //
+        return distanceMeters;
     }
 
     public void turn(double power){
@@ -156,7 +173,7 @@ public class Turret extends RobotPart {
         double shootError = Math.abs(QbitOp.shooterTarget.get() - shooter.getVelocity());
         double turnError = Math.abs(QbitOp.turnError.get());
 
-        if(turnError > 2 || shootError > 80){
+        if(turnError > 2  || shootError > 150){
             timer2.reset();
         }else return timer2.seconds() < 0.4;
 
