@@ -42,6 +42,10 @@ public class Encoder extends Electronic {
         return (invertedOutput?-1:1)*(position.get() - startPosition.get());
     }
 
+    public double getPositionRaw(){
+        return (invertedOutput?-1:1)*(position.get());
+    }
+
     public void hardReset(){
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         startPosition.set(0);

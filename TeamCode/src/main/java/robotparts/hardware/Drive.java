@@ -6,10 +6,12 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
+import geometry.Pose;
+import geometry.Vector;
 import robotparts.hardware.templates.DriveTemplate;
 
 public class Drive extends DriveTemplate {
-    GoBildaPinpointDriver pinpoint;
+    public GoBildaPinpointDriver pinpoint;
 
     @Override
     public void init() {
@@ -40,9 +42,37 @@ public class Drive extends DriveTemplate {
         pinpoint.setPosition(new Pose2D(DistanceUnit.MM, 0, 0, AngleUnit.DEGREES, 0));
     }
 
+    public static final Vector fieldCenterToTarget = new Vector(81, 0).rotate(Math.toRadians(221));
+
+
+//    public void setHeading
+
+
+    public void updateOdometryFromLimey(Pose fromLimey){
+        Vector targetToLimey = new Vector(fromLimey.getY(), 2).rotate(Math.toRadians(45));
+        Vector fieldCenterToLimey = fieldCenterToTarget.add(targetToLimey);
+        Pose2D robotPose = new Pose2D(DistanceUnit.INCH, fieldCenterToLimey.getX(), fieldCenterToLimey.getY(), AngleUnit.DEGREES, 225);
+    }
+
+//    public Pose toFieldCentric(Pose fromLimey, double turretAngle){
+//        double turretAngleProper = -turretAngle;
+//        Vector targetToLimey = new Vector(fromLimey.getY(), 0).rotate(Math.toRadians(45+fromLimey.getAngle()));
+//
+//
+//
+//
+//    }
+
+
+
+
 
     public void updateOdometry() {
         pinpoint.update();
+    }
+
+    public void setPosition(Pose pose){
+        pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, pose.getX(), pose.getY(), AngleUnit.DEGREES, pose.getAngle()));
     }
 
     public Pose2D getOdoPose() {
@@ -50,11 +80,11 @@ public class Drive extends DriveTemplate {
     }
 
     public double getX() {
-        return pinpoint.getPosition().getX(DistanceUnit.CM);
+        return pinpoint.getPosition().getX(DistanceUnit.INCH);
     }
 
     public double getY() {
-        return pinpoint.getPosition().getY(DistanceUnit.CM);
+        return pinpoint.getPosition().getY(DistanceUnit.INCH);
     }
 
 

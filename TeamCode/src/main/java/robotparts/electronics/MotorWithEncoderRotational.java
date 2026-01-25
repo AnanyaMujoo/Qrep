@@ -38,6 +38,8 @@ public class MotorWithEncoderRotational extends Motor {
         return !motor.isBusy();
     }
     public double getPosition(){ return (1/degreesToTicks)*(encoder.getPosition()); }
+
+    public double getPositionRaw(){ return (1/degreesToTicks)*(encoder.getPositionRaw()); }
     public boolean isMotorInTargetingMode(){ return motor.getMode().isPIDMode(); }
     public void resetRunMode(){
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);

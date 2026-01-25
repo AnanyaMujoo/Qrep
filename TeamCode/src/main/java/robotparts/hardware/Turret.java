@@ -129,6 +129,11 @@ public class Turret extends RobotPart {
         }
     }
 
+    public Pose getPoseInches(){
+        Pose limey = getPoseWithLimey();
+        return new Pose(0,  300*Math.atan(limey.getY()/1500.0), limey.getAngle());
+    }
+
 
     public double getRPM1(double currentDistance){
         if(currentDistance < distances[0]){
@@ -215,6 +220,10 @@ public class Turret extends RobotPart {
         return pose.y;
     }
 
+    public double getDistanceInches(){
+        return 300*Math.atan(getDistance()/1500);
+    }
+
     public void turn(double power){
         turret.setPower(power);
     }
@@ -263,4 +272,9 @@ public class Turret extends RobotPart {
 //        double shootError = Math.abs(QbitOp.shooterTarget.get() - shooter.getVelocity());
 //        return shootError;
 //    };
+
+
+    public double getTurretAngleFromStart(){
+        return turret.getPositionRaw();
+    }
 }
