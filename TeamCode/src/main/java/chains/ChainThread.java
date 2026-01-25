@@ -39,6 +39,10 @@ public class ChainThread extends ThreadBase {
 
     public Queue<Stage> getStageQueue(){ return stageQueue; }
 
+    public boolean areChainsRunning(){
+        return !stageQueue.isEmpty();
+    }
+
 }
 
 
