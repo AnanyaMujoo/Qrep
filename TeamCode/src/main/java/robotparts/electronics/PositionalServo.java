@@ -23,4 +23,8 @@ public class PositionalServo extends Electronic {
 
     public void moveTo(double pos){ servo.setPosition(pos); }
 
+    public double getPosition(){
+        return servo.getPosition();
+    }
+
 }

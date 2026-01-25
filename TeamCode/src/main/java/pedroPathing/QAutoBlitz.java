@@ -1,8 +1,5 @@
 package pedroPathing;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
-import static pedroPathing.QAuto.PathState.*; // Imports all states cleanly
-
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.bylazar.configurables.annotations.Configurable;
@@ -17,6 +14,7 @@ import com.pedropathing.util.Timer;
 import global.Initializer;
 import robotparts.hardware.Turret;
 
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
 import static robotparts.RobotConfig.intake;
 import static robotparts.RobotConfig.turret;
 import static teleop.TeleChain.Intake;
@@ -27,9 +25,25 @@ import static teleop.opmodes.QbitOp.oldTarget;
 import static teleop.opmodes.QbitOp.shooterTarget;
 import static teleop.opmodes.QbitOp.turnError;
 
-@Autonomous(name = "QAuto", group = "Autonomous")
+@Autonomous(name = "QAutoBlitz", group = "Autonomous")
 @Configurable
-public class QAuto extends OpMode implements Initializer {
+public class QAutoBlitz extends OpMode implements Initializer {
+
+    // --- Local Enum Definition (No dependency on QAuto) ---
+    public enum PathState {
+        DRIVE_SHOOT1,
+        SHOOT1,
+        SHOOT1_WAIT,
+        DRIVE_INTAKE1,
+        DRIVE_INTAKE1_WAIT,
+        DRIVE_SHOOT2,
+        DRIVE_INTAKE2_PUSH,
+        DRIVE_SHOOT3,
+        DRIVE_INTAKE3_PUSH,
+        DRIVE_SHOOT4,
+        DONE
+    }
+
     private TelemetryManager panelsTelemetry;
     public Follower follower;
     private PathState pathState;
@@ -60,23 +74,6 @@ public class QAuto extends OpMode implements Initializer {
         turnError.set(0.0);
     }
 
-    public enum PathState {
-        DRIVE_SHOOT1,
-        SHOOT1,
-        SHOOT1_WAIT,
-        DRIVE_INTAKE1,
-        DRIVE_INTAKE1_WAIT,
-        DRIVE_SHOOT2,
-
-        // Combined States for smoothing the intake part
-        DRIVE_INTAKE2_PUSH, // Replaces DRIVE_INTAKE2_X and _Y
-        DRIVE_SHOOT3,
-
-        DRIVE_INTAKE3_PUSH, // Replaces DRIVE_INTAKE3_X and _Y
-        DRIVE_SHOOT4,
-        DONE
-    }
-
     public void setPathState(PathState runState){
         pathState = runState;
         pathTimer.resetTimer();
@@ -84,12 +81,12 @@ public class QAuto extends OpMode implements Initializer {
 
     @Override
     public void loop() {
-        isTurretTargeting.set(true);
+        isTurretTargeting.set(false);
         follower.update();
         autonomousPathUpdate();
         turret.shooter.setPIDF(25, 0, 0.00000, 13.5);
 
-        // --- Turret Logic (Unchanged) ---
+        // --- Turret Logic ---
         if(isTurretTargeting.get()){
             geometry.Pose pose = turret.getPoseWithLimey();
             double distance = pose.getY();
@@ -146,40 +143,33 @@ public class QAuto extends OpMode implements Initializer {
     }
 
     public static class Paths {
-        // Keeping Path 1, 2, 3 separate as requested
         public PathChain Path1, Path2, Path3;
-        // Combining 4+5 for smooth intake
         public PathChain Path4_5_Intake;
-        // Path 6 separate to STOP at shoot
         public PathChain Path6;
-        // Combining 7+8 for smooth intake
         public PathChain Path7_8_Intake;
-        // Path 9 separate to STOP at shoot
         public PathChain Path9;
 
         public Paths(Follower follower) {
             Path1 = follower.pathBuilder()
-                    .addPath(new BezierLine(new Pose(-56.5, -46.5), new Pose(0, 0)))
+                    .addPath(new BezierLine(new Pose(-56.5, -46.5), new Pose(-14, -14)))
                     .setLinearHeadingInterpolation(Math.toRadians(225), Math.toRadians(225))
-                    .setGlobalDeceleration(3)
+                    .setGlobalDeceleration(30)
                     .build();
 
             Path2 = follower.pathBuilder()
-                    .addPath(new BezierLine(new Pose(0, 0), new Pose(-14, -51)))
+                    .addPath(new BezierLine(new Pose(-14, -14), new Pose(-14, -51)))
                     .setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(270))
-                    .setGlobalDeceleration(3)
+                    .setGlobalDeceleration(30)
                     .build();
 
-            // Ends at (-14, -14). Robot stops here for DRIVE_SHOOT2.
             Path3 = follower.pathBuilder()
                     .addPath(new BezierLine(new Pose(-14, -51),new Pose(-14, -14)))
                     .setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(225))
-                    .setGlobalDeceleration(3)
+                    .setGlobalDeceleration(30)
                     .setVelocityConstraint(20)
                     .build();
 
-            // FIXED: Combined Path 4 and 5.
-            // This is just driving AROUND to the sample. It doesn't need to stop in the corner.
+            // Combined Intake Path 1
             Path4_5_Intake = follower.pathBuilder()
                     .addPath(new BezierLine(new Pose(-14, -14),new Pose(8, -14)))
                     .setLinearHeadingInterpolation(Math.toRadians(225), Math.toRadians(270))
@@ -189,7 +179,6 @@ public class QAuto extends OpMode implements Initializer {
                     .setVelocityConstraint(20)
                     .build();
 
-            // Ends at (-14, -14). Robot stops here for DRIVE_SHOOT3.
             Path6 = follower.pathBuilder()
                     .addPath(new BezierLine(new Pose(8, -55),new Pose(-14, -14)))
                     .setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(225))
@@ -197,7 +186,7 @@ public class QAuto extends OpMode implements Initializer {
                     .setVelocityConstraint(20)
                     .build();
 
-            // FIXED: Combined Path 7 and 8.
+            // Combined Intake Path 2
             Path7_8_Intake = follower.pathBuilder()
                     .addPath(new BezierLine(new Pose(-14, -14),new Pose(27, -14)))
                     .setLinearHeadingInterpolation(Math.toRadians(225), Math.toRadians(270))
@@ -207,7 +196,6 @@ public class QAuto extends OpMode implements Initializer {
                     .setVelocityConstraint(20)
                     .build();
 
-            // Ends at (-14, -14). Robot stops here for DRIVE_SHOOT4.
             Path9 = follower.pathBuilder()
                     .addPath(new BezierLine(new Pose(27, -55),new Pose(-14, -14)))
                     .setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(225))
@@ -221,66 +209,62 @@ public class QAuto extends OpMode implements Initializer {
         switch (pathState) {
             case DRIVE_SHOOT1:
                 follower.followPath(paths.Path1, true);
-                setPathState(SHOOT1);
+                setPathState(PathState.SHOOT1);
                 break;
             case SHOOT1:
                 if(!follower.isBusy()) {
-                    setPathState(SHOOT1_WAIT);
+                    setPathState(PathState.SHOOT1_WAIT);
                 }
                 break;
             case SHOOT1_WAIT:
                 if (pathTimer.getElapsedTimeSeconds() > 2.0) {
-                    setPathState(DRIVE_INTAKE1);
+                    setPathState(PathState.DRIVE_INTAKE1);
                 }
                 break;
             case DRIVE_INTAKE1:
                 if(!follower.isBusy()) {
                     follower.followPath(paths.Path2, true);
-                    setPathState(DRIVE_INTAKE1_WAIT);
+                    setPathState(PathState.DRIVE_INTAKE1_WAIT);
                 }
                 break;
             case DRIVE_INTAKE1_WAIT:
                 if (pathTimer.getElapsedTimeSeconds() > 2.0) {
-                    setPathState(DRIVE_SHOOT2);
+                    setPathState(PathState.DRIVE_SHOOT2);
                 }
                 break;
 
             case DRIVE_SHOOT2:
                 if(!follower.isBusy()){
-                    // Drive to (-14, -14) and STOP
                     follower.followPath(paths.Path3, true);
-                    setPathState(DRIVE_INTAKE2_PUSH);
+                    setPathState(PathState.DRIVE_INTAKE2_PUSH);
                 }
                 break;
 
             case DRIVE_INTAKE2_PUSH:
-                // This combines the "X" and "Y" movements
                 if(!follower.isBusy()){
                     follower.followPath(paths.Path4_5_Intake, true);
-                    setPathState(DRIVE_SHOOT3);
+                    setPathState(PathState.DRIVE_SHOOT3);
                 }
                 break;
 
             case DRIVE_SHOOT3:
                 if(!follower.isBusy()){
-                    // Return to (-14, -14) and STOP
                     follower.followPath(paths.Path6, true);
-                    setPathState(DRIVE_INTAKE3_PUSH);
+                    setPathState(PathState.DRIVE_INTAKE3_PUSH);
                 }
                 break;
 
             case DRIVE_INTAKE3_PUSH:
                 if(!follower.isBusy()){
                     follower.followPath(paths.Path7_8_Intake, true);
-                    setPathState(DRIVE_SHOOT4);
+                    setPathState(PathState.DRIVE_SHOOT4);
                 }
                 break;
 
             case DRIVE_SHOOT4:
                 if(!follower.isBusy()){
-                    // Return to (-14, -14) and STOP
                     follower.followPath(paths.Path9, true);
-                    setPathState(DONE);
+                    setPathState(PathState.DONE);
                 }
                 break;
 

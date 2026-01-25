@@ -10,6 +10,7 @@ import static global.General.fieldSide;
 
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
+import java.util.ArrayList;
 import java.util.function.Supplier;
 
 import geometry.Pose;
@@ -21,12 +22,14 @@ import utility.Timer;
 
 public class Turret extends RobotPart {
 
-    public Motor turret;
+    public MotorWithEncoderRotational turret;
     public MotorWithEncoderRotational shooter;
     public Timer timer = new Timer();
     public Timer timer2 = new Timer();
 
     public double currentPower = 0;
+    // Added variable to store the previous calculation
+    private double previousVelocity = 0;
 
     public Limelight3A limey;
     public IMU imu;
@@ -36,19 +39,22 @@ public class Turret extends RobotPart {
     public static final double LIMEY_LEFT_DISTANCE = 12;
 
     public static final double TURRET_TARGETING_K = 0.026;
-    public static final double TURRET_TARGETING_REST_POWER = 0.02;
+    public static final double TURRET_TARGETING_REST_POWER = 0.08;
 
     public static final double SHOOT_ANGLE = 52;
     public static final double g = 9.81;
 
-    public static final double SHOOT_RATIO_1 = 1;
+    public static double SHOOT_RATIO_1 = 1.04;
+    public static final double maxTurretRotation = 180;
+    public static final double minTurretRotation = -20;
 
+    public static double SHOOT_RATIO_23 = SHOOT_RATIO_1*1.42;
 
-    public static final double SHOOT_RATIO_23 = SHOOT_RATIO_1*1.3;
+    public ArrayList<Double> velocityArray = new ArrayList<>();
 
     @Override
     public void init() {
-        turret = createMotor("tu", MOTOR_FORWARD, MOTOR_BRAKE);
+        turret = createMotorWithEncoderRotational("tu", MOTOR_FORWARD, MOTOR_BRAKE, false, 537.6, 4);
         shooter = createMotorWithEncoderRotational("sh", MOTOR_FORWARD, MOTOR_FLOAT, false, 28.0, 1);
         timer.reset();
         timer2.reset();
@@ -58,6 +64,10 @@ public class Turret extends RobotPart {
         imu = QhardwareMap.get().get(IMU.class, "imu");
         RevHubOrientationOnRobot revHubOrientationOnRobot = new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.LEFT, RevHubOrientationOnRobot.UsbFacingDirection.UP);
         imu.initialize(new IMU.Parameters(revHubOrientationOnRobot));
+
+        velocityArray = new ArrayList<>();
+        velocityArray.add(0.0);
+        velocityArray.add(0.0);
     }
 
     public Pose getPoseWithLimey(){
@@ -72,40 +82,23 @@ public class Turret extends RobotPart {
         }
 
         if (llResult != null && llResult.isValid()) {
-        int desiredTag = 0;
-//        if(fieldSide == FieldSide.BLUE){
-//            desiredTag = 20;
-//        }
-//        else{
-//            desiredTag = 24;
-//        }
-
-//            if (llResult != null && llResult.isValid()) {
-//                for (LLResultTypes.FiducialResult fid : llResult.getFiducialResults()) {
-//                    if (fid.getFiducialId() != desiredTag){
-//                        continue;
-//                    }
-                    double ty = llResult.getTy();
-                    double angle = 0;
-                    double distance = HEIGHT_DIFFERENCE/Math.tan(Math.toRadians(MOUNT_ANGLE+ty));
-                    if (fieldSide == FieldSide.BLUE) {
-                        angle = llResult.getTx()-1;
-                    }
-                    else{
-                        angle = llResult.getTx()+0.5;
-                    }
-                    return new Pose(0, distance, angle);
-//                }
-
-
-
-//            Pose3D botPose = llResult.getBotpose_MT2();
-//            return botPose;
+            double ty = llResult.getTy();
+            double angle = 0;
+            double distance = HEIGHT_DIFFERENCE/Math.tan(Math.toRadians(MOUNT_ANGLE+ty));
+                angle = llResult.getTx()-5.5;
+            if (angle+turret.getPosition()<minTurretRotation){
+                angle = 0;
+            }
+            if (angle+turret.getPosition()>maxTurretRotation){
+                angle =0;
+            }
+            return new Pose(0, distance, angle);
 
         }else{
-            return new Pose(0,0,0);
+            return new Pose(0,0,turret.getPosition());
         }
     }
+
     public double calculateExitVelocity(double distanceMeters) {
         double theta = Math.toRadians(Turret.SHOOT_ANGLE); // shooter angle in radians
         double h = Turret.HEIGHT_DIFFERENCE / 100.0;       // cm → meters
@@ -120,19 +113,19 @@ public class Turret extends RobotPart {
 
         return Math.sqrt(numerator / denominator);
     }
+
     public double RPMScaler(double RPM){
         double newRPM =2650.0/2800.0*RPM;
         double inMin = 2800;
         double inMax = 3200;
         double outMin = 2650;
-        double outMax = 3300;
+        double outMax = 3250;
         return outMin +(RPM - inMin)*(outMax-outMin)/(inMax-inMin);
-
     }
 
     public double velocityToRPM(double velocity) {
         double wheelRadius = 0.1016/2;  // 4-inch wheel → meters
-        double rpmEfficiency = 1.08;      // fudge factor for slip, compression, etc.
+        double rpmEfficiency = SHOOT_RATIO_1;      // fudge factor for slip, compression, etc.
 
         return Math.max(2000, Math.min(3950, (2*velocity / (2 * Math.PI * wheelRadius)) * 60 * rpmEfficiency));
     }
@@ -140,12 +133,31 @@ public class Turret extends RobotPart {
     public double getShooterRPMFromLimelight() {
         Pose pose = getPoseWithLimey();           // uses Limelight
         double distanceMeters = pose.y / 100.0;   // cm → meters
-        double velocity = calculateExitVelocity(distanceMeters);
-        return RPMScaler(velocityToRPM(velocity));
+
+        // 1. Calculate the instantaneous velocity required
+        double rawVelocity = calculateExitVelocity(distanceMeters);
+
+        // 2. Perform Moving Average (If previous is 0, initialize it to current to avoid ramp-up lag)
+        if (previousVelocity == 0) {
+            previousVelocity = rawVelocity;
+        }
+
+        // This averages the current calculation with the result of the previous loop
+        double smoothedVelocity = (rawVelocity + previousVelocity) / 2.0;
+
+        // 3. Update the history
+        previousVelocity = smoothedVelocity;
+
+        // 4. Use smoothedVelocity for the rest of the calculation
+        if (RPMScaler(velocityToRPM(smoothedVelocity)) > 3250){
+            return velocityToRPM(smoothedVelocity);
+        }
+        return RPMScaler(velocityToRPM(smoothedVelocity));
     }
+
     public double getDistance(){
         Pose pose = getPoseWithLimey();           // uses Limelight
-        double distanceMeters = pose.y / 100.0;   //
+        double distanceMeters = pose.y;   //
         return distanceMeters;
     }
 
@@ -157,34 +169,44 @@ public class Turret extends RobotPart {
         shooter.setPower(power);
     }
 
-    public Runnable setShootTarget(double rpm){
-        return () -> shooter.setTargetVelocity(rpm);
-    }
-
-    public Runnable resetShootRunmode(){
-        return () -> {
-            shooter.resetRunMode();
-            currentPower = shooter.getPower();
-            timer.reset();
-        };
-    }
+//    public Runnable setShootTarget(double rpm){
+//        return () -> shooter.setTargetVelocity(rpm);
+//    }
+//
+//    public Runnable resetShootRunmode(){
+//        return () -> {
+//            shooter.resetRunMode();
+//            currentPower = shooter.getPower();
+//            timer.reset();
+//            previousVelocity = 0; // Optional: Reset filter when mode resets
+//        };
+//    }
+//
+//    public Runnable setTurretTarget(double angle, double power){
+//        return () -> turret.setTarget(angle, power);
+//    }
+//
+//    public Runnable resetTurretRunmode(){
+//        return () -> turret.resetRunMode();
+//    }
 
     public Supplier<Boolean> isNotReady = () -> {
-        double shootError = Math.abs(QbitOp.shooterTarget.get() - shooter.getVelocity());
+        velocityArray.add(shooter.getVelocity());
+        int last = velocityArray.size()-1;
+        double averageVelocity = (velocityArray.get(last) + velocityArray.get(last-1) + velocityArray.get(last-2))/3.0;
+        // TODO CLEAR ARRAYLIST
+        double shootError = Math.abs(QbitOp.shooterTarget.get() - averageVelocity);
         double turnError = Math.abs(QbitOp.turnError.get());
 
-        if(turnError > 2  || shootError > 150){
+        if(turnError > 1  || shootError > 120){
             timer2.reset();
-        }else return timer2.seconds() < 0.4;
+        }else return timer2.seconds() < 0.5;
 
         return true;
     };
 
     public Double errorReturn(){
         double shootError = Math.abs(QbitOp.shooterTarget.get() - shooter.getVelocity());
-//        double turnError = Math.abs(QbitOp.turnError.get());
         return shootError;
     };
-
-
 }

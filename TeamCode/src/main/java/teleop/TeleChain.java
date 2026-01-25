@@ -84,13 +84,17 @@ public interface TeleChain {
     );
 
     ChainMaker Shoot = () -> new Chain(
-            stage(intake, () -> intake.feed(-1), 0.05),
-            stage(intake, intake::unlock, 0.1),
+            stage(intake, intake.setFeedTargetRelative(-240, 0.4), () -> !intake.feeder.isMotorAtTarget()),
+//            stage(intake, () -> intake.feed(-0.5), 0.3),
+            stage(intake, intake::unlock, 0.2),
+            stage(intake, intake.resetFeedRunMode()),
+            stage(intake, () -> {}, intake.isReady),
             stage(intake, () -> {}, turret.isNotReady),
             stage(intake, () -> QbitOp.isTurret23Mode.set(true)),
-            stage(intake, () -> intake.intakeAndFeed(1), 1),
+            stage(intake, () -> intake.intakeAndFeed(1), 2),
             stage(intake, () -> QbitOp.isTurretTargeting.set(false)),
             stage(intake, () -> QbitOp.isTurret23Mode.set(false))
+
 
 //p,10,i,3,d,0,f,0
 
@@ -122,7 +126,7 @@ public interface TeleChain {
             stage(intake, intake::unlock, 0.1),
             stage(intake, () -> {}, turret.isNotReady),
             stage(intake, () -> QbitOp.isTurret23Mode.set(true)),
-            stage(intake, () -> intake.intakeAndFeed(1), 1),
+            stage(intake, () -> intake.intakeAndFeed(1), 1.5),
             stage(intake, () -> QbitOp.isTurretTargeting.set(false)),
             stage(intake, () -> QbitOp.isTurret23Mode.set(false))
     );

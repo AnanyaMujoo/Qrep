@@ -13,7 +13,7 @@ import utility.Timer;
 public class Intake extends RobotPart {
 
     public Motor intake;
-    public Motor feeder;
+    public MotorWithEncoderRotational feeder;
 //    public ColorSensor csb;
     public PositionalServo lock;
     public ColorSensor detect;
@@ -32,8 +32,8 @@ public class Intake extends RobotPart {
     @Override
     public void init() {
         intake = createMotor("in", MOTOR_REVERSE, MOTOR_FLOAT);
-        feeder = createMotor("fe", MOTOR_FORWARD, MOTOR_BRAKE);
-//        feeder = createMotorWithEncoderRotational("fe", MOTOR_FORWARD, MOTOR_BRAKE, false, 383.6,1.0);
+//        feeder = createMotor("fe", MOTOR_FORWARD, MOTOR_BRAKE);
+        feeder = createMotorWithEncoderRotational("fe", MOTOR_FORWARD, MOTOR_BRAKE, false, 383.6,1.0);
 //        csb = createColorSensor("cs1");
         lock = createPositionalServo("lo", SERVO_REVERSE);
         detect = createColorSensor("de");
@@ -54,13 +54,15 @@ public class Intake extends RobotPart {
         feed(power);
     }
 
-//    public Runnable setFeedTargetRelative(double target, double power){
-//        return () -> {feeder.softResetEncoder(); feeder.setTarget(target, power);};
-//    }
-//
-//    public Runnable resetFeedRunMode(){
-//        return () -> feeder.resetRunMode();
-//    }
+
+
+    public Runnable setFeedTargetRelative(double target, double power){
+        return () -> {feeder.softResetEncoder(); feeder.setTarget(target, power);};
+    }
+
+    public Runnable resetFeedRunMode(){
+        return () -> feeder.resetRunMode();
+    }
 //
 //    public double getColorSensorBottomDistance(){
 //        return csb.getDistance();
@@ -75,8 +77,11 @@ public class Intake extends RobotPart {
     }
 //    public void lockTime(double power, double time){lock.move}
 
+    public Supplier<Boolean> isReady = () -> {
+        return lock.getPosition() == 1.0;
+    };
 
     public void unlock(){
-        lock.moveTo(0.71);
+        lock.moveTo(0.64);
     }
 }

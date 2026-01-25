@@ -8,6 +8,7 @@ import static robotparts.RobotConfig.turret;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -17,6 +18,7 @@ import global.Common;
 import robotparts.hardware.Turret;
 import teleop.Tele;
 import teleop.teleutil.Button;
+import utility.Timer;
 
 @TeleOp
 public class QbitOp extends Tele {
@@ -33,6 +35,11 @@ public class QbitOp extends Tele {
     private double ratio23 = 1.10;
     public static AtomicBoolean readyToShoot = new AtomicBoolean(false);
 
+
+    public ArrayList<Double> angleArray = new ArrayList<>();
+
+    public Timer timer = new Timer();
+
     @Override
     public void initTele() {
 
@@ -43,18 +50,23 @@ public class QbitOp extends Tele {
 
 //        gpB.onClickToggle(Button.X, () -> turret.shoot(0.7), () -> turret.shoot(0) );
         turret.shooter.setPIDF(25, 0, 0.00000, 13.5);
+//        turret.turret.setPIDF(6, 0, 0, 14);
 
         gpA.onClick(Button.Y, Intake);
         gpA.onClick(Button.X, Shoot);
 //        gpA.onClick(Button.X, Shoot2);
         gpA.onClick(Button.B, JustIntake);
+        gpA.onClick(Button.DPAD_UP, ()-> turret.SHOOT_RATIO_23+=0.02);
+        gpA.onClick(Button.DPAD_DOWN, ()-> turret.SHOOT_RATIO_23-=0.02);
+        gpA.onClick(Button.DPAD_RIGHT, ()-> turret.SHOOT_RATIO_1+=0.01);
+        gpA.onClick(Button.DPAD_LEFT, ()-> turret.SHOOT_RATIO_1-=0.01);
 //        gpA.onClick(Button.Y, intake.setFeedTargetRelative(180, 1.0));
 //        intake.feeder.softResetEncoder();
 
 //        gpA.onClick(Button.B, () -> shooterTarget.set(3000.0));
 
         readyToShoot.set(false);
-
+        turret.turret.softResetEncoder();
 
 
         intake.lock();
@@ -66,6 +78,12 @@ public class QbitOp extends Tele {
         isTurret23Mode.set(false);
 
         turnError.set(0.0);
+
+        angleArray = new ArrayList<>();
+        angleArray.add(0.0);
+        angleArray.add(0.0);
+
+        timer.reset();
     }
 
 
@@ -81,16 +99,23 @@ public class QbitOp extends Tele {
         drive.move(0.7*gpA.ry, 0.7*gpA.rx, 0.6*gpA.lx);
 
         drive.updateOdometry();
-        display("Odo X (cm)", drive.getX());
+//        display("Odo X (cm)", drive.getX());
+//        display("Distance", turret.getDistance());
+//        display("Odo Y (cm)", drive.getY());
+//        display("Odo H (deg)", drive.getHeading());
+//        display("Odo X | Y | H", String.format("%.1f | %.1f | %.1f", drive.getX(), drive.getY(), drive.getHeading()));
+//        display("Color Sensor Dist", intake.getDetectDistance());
+//        display("Ball Detected?", intake.getDetectDistance() < 4.1);
+        display("Target", Math.round(shooterTarget.get()));
+        display("Actual", Math.round(turret.shooter.getVelocity()));
         display("Distance", turret.getDistance());
-        display("Odo Y (cm)", drive.getY());
-        display("Odo H (deg)", drive.getHeading());
-        display("Odo X | Y | H", String.format("%.1f | %.1f | %.1f", drive.getX(), drive.getY(), drive.getHeading()));
-        display("Color Sensor Dist", intake.getDetectDistance());
-        display("Ball Detected?", intake.getDetectDistance() < 4.1);
-        display("Shooter Target | Actual", shooterTarget.get() + " | " + turret.shooter.getVelocity());
-        display("Turn Error", turnError.get());
-        display("READY TO BLITZ", readyToShoot.get() ? "!!! YES !!!" : "AIMING...");
+        display("Ratio23", turret.SHOOT_RATIO_23);
+        display("RatioOverall", turret.SHOOT_RATIO_1);
+
+//        display("Shooter Target | Actual", shooterTarget.get() + " | " + turret.shooter.getVelocity());
+//        display("Turn Error", turnError.get());
+//        display("READY TO BLITZ", readyToShoot.get() ? "!!! YES !!!" : "AIMING...");
+//        display("angle", turret.turret.getPosition());
 //        display("shootertqarget", shooterTarget.get());
 //        display("shooter velocity", turret.shooter.getVelocity());
 //        display("shooter velocity error", shooterTarget.get()-turret.shooter.getVelocity());
@@ -158,30 +183,41 @@ public class QbitOp extends Tele {
 
             if(distance > 80){
                 targetAngle = Math.toDegrees(Math.atan(Turret.LIMEY_LEFT_DISTANCE/distance));
-                error = targetAngle - angle;
+                //Todo fix
+
+//
+//                angleArray.add(angle);
+//                int last = angleArray.size()-1;
+//                double averageAngle = (angleArray.get(last) + angleArray.get(last-1) + angleArray.get(last-2))/3.0;
+
+                error = targetAngle - (angle);
+
                 turnError.set(error);
 
                 double targetRPM = turret.getShooterRPMFromLimelight();
                 double actual = turret.shooter.getVelocity();
 
-                readyToShoot.set(Math.abs(error) < 1.5 && Math.abs(actual - targetRPM) < 150);
+                readyToShoot.set(Math.abs(error) < 1.5 && Math.abs(actual - targetRPM) < 120);
 
 
-
-
+                if(timer.seconds() > 0.5) {
+                    turret.turret.softResetEncoder();
+                    turret.turret.setTarget(-error, 0.2);
+                    timer.reset();
+                }
 
 //                display("Angle", angle);
 //                display("TargetAngle", targetAngle);
 //                display("Distance", distance);
 //                display("Error", error);
 //                display("Velocity Error", turret.errorReturn());
-                double power = (-Math.signum(error)*Turret.TURRET_TARGETING_REST_POWER - error*Turret.TURRET_TARGETING_K)*0.5;
-
-                if(Math.abs(error) > 1) {
-                    turret.turn(power);
-                }else{
-                    turret.turn(0.0);
-                }
+//                double power = (-Math.signum(error)*Turret.TURRET_TARGETING_REST_POWER - error*Turret.TURRET_TARGETING_K)*0.5;
+//
+//                if(Math.abs(error) > 1) {
+//                    turret.turn(power);
+//                }else{
+//                    turret.turn(0.0);
+//                }
 
 //                double realDistance = distance*Math.cos(Math.toRadians(targetAngle))/100;
 //
@@ -218,6 +254,7 @@ public class QbitOp extends Tele {
         }else{
             turret.turn(0.0);
             shooterTarget.set(0.0);
+            turret.turret.resetRunMode();
 //
 //            display("Inhere");
         }
@@ -229,7 +266,6 @@ public class QbitOp extends Tele {
         double st = shooterTarget.get();
         if(st != oldTarget.get()){
             if(st != 0) {
-
                 turret.shooter.setTargetVelocity(st);
             }else{
                 turret.shooter.resetRunMode();
