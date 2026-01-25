@@ -36,6 +36,9 @@ public class QbitOp extends Tele {
     public static AtomicBoolean readyToShoot = new AtomicBoolean(false);
 
 
+    public static AtomicBoolean farMode = new AtomicBoolean(false);
+
+
     public ArrayList<Double> angleArray = new ArrayList<>();
 
     public Timer timer = new Timer();
@@ -53,13 +56,19 @@ public class QbitOp extends Tele {
 //        turret.turret.setPIDF(6, 0, 0, 14);
 
         gpA.onClick(Button.Y, Intake);
-        gpA.onClick(Button.X, Shoot);
+        gpA.onClick(Button.X, () -> {
+            if(farMode.get()){
+                ShootFar.run();
+            }else{
+                Shoot.run();
+            }
+        });
 //        gpA.onClick(Button.X, Shoot2);
         gpA.onClick(Button.B, JustIntake);
-        gpA.onClick(Button.DPAD_UP, ()-> turret.SHOOT_RATIO_23+=0.02);
-        gpA.onClick(Button.DPAD_DOWN, ()-> turret.SHOOT_RATIO_23-=0.02);
-        gpA.onClick(Button.DPAD_RIGHT, ()-> turret.SHOOT_RATIO_1+=0.01);
-        gpA.onClick(Button.DPAD_LEFT, ()-> turret.SHOOT_RATIO_1-=0.01);
+        gpA.onClick(Button.DPAD_UP, ()-> Turret.SHOOT_OFFSET_1 +=50.0);
+        gpA.onClick(Button.DPAD_DOWN, ()-> Turret.SHOOT_OFFSET_1 -=50.0);
+        gpA.onClick(Button.DPAD_RIGHT, ()-> Turret.SHOOT_OFFSET_23+=50.0);
+        gpA.onClick(Button.DPAD_LEFT, ()-> Turret.SHOOT_OFFSET_23-=50.0);
 //        gpA.onClick(Button.Y, intake.setFeedTargetRelative(180, 1.0));
 //        intake.feeder.softResetEncoder();
 
@@ -67,6 +76,8 @@ public class QbitOp extends Tele {
 
         readyToShoot.set(false);
         turret.turret.softResetEncoder();
+
+        farMode.set(false);
 
 
         intake.lock();
@@ -107,10 +118,14 @@ public class QbitOp extends Tele {
 //        display("Color Sensor Dist", intake.getDetectDistance());
 //        display("Ball Detected?", intake.getDetectDistance() < 4.1);
         display("Target", Math.round(shooterTarget.get()));
-        display("Actual", Math.round(turret.shooter.getVelocity()));
+//        display("Actual", Math.round(turret.shooter.getVelocity()));
         display("Distance", turret.getDistance());
-        display("Ratio23", turret.SHOOT_RATIO_23);
-        display("RatioOverall", turret.SHOOT_RATIO_1);
+        display("Offset1", Turret.SHOOT_OFFSET_1);
+        display("Offset23", Turret.SHOOT_OFFSET_23);
+//        display("distance", turret.getDistance());
+//        display("distance color sensor",intake.getDetectDistance());
+
+        display("READY TO BLITZ", readyToShoot.get() ? "!!! YES !!!" : "AIMING...");
 
 //        display("Shooter Target | Actual", shooterTarget.get() + " | " + turret.shooter.getVelocity());
 //        display("Turn Error", turnError.get());
@@ -194,15 +209,18 @@ public class QbitOp extends Tele {
 
                 turnError.set(error);
 
-                double targetRPM = turret.getShooterRPMFromLimelight();
-                double actual = turret.shooter.getVelocity();
+//                double targetRPM = turret.getShooterRPMFromLimelight();
 
-                readyToShoot.set(Math.abs(error) < 1.5 && Math.abs(actual - targetRPM) < 120);
+//                double actual = turret.shooter.getVelocity();
+
+//                readyToShoot.set(Math.abs(error) < 1.5 && Math.abs(actual - targetRPM) < 120);
 
 
-                if(timer.seconds() > 0.5) {
+
+
+                if(timer.seconds() > 0.5 && Math.abs(error) > 0.5) {
                     turret.turret.softResetEncoder();
-                    turret.turret.setTarget(-error, 0.2);
+                    turret.turret.setTarget(-error, 0.1);
                     timer.reset();
                 }
 
@@ -237,13 +255,28 @@ public class QbitOp extends Tele {
 //                }else{
 //                    shooterTarget.set(rpm * Turret.SHOOT_RATIO_23);
 //                }
-                targetRPM = turret.getShooterRPMFromLimelight();
-                shooterTarget.set(targetRPM);
+
+
                 if(!isTurret23Mode.get()) {
-                    shooterTarget.set(targetRPM * Turret.SHOOT_RATIO_1);
+                    shooterTarget.set(turret.getRPM1(distance) + Turret.SHOOT_OFFSET_1);
                 }else{
-                    shooterTarget.set(targetRPM * Turret.SHOOT_RATIO_23);
+                    shooterTarget.set(turret.getRPM23(distance) + Turret.SHOOT_OFFSET_23);
                 }
+
+                farMode.set(distance > 500);
+
+//                if(distance > 400 && !farMode.get()){
+//                    farMode.set(true);
+////                    Turret.SHOOT_RATIO_1 = 1;
+////                    Turret.SHOOT_RATIO_23 = 1;
+//                }else if(distance < 400 && farMode.get()){
+//                    farMode.set(false);
+//                }
+
+//                display("TargetRPM", targetRPM);
+
+                display("Farmode", farMode.get());
+
 //                display("RPM", targetRPM);
             }else{
                 turret.turn(0.0);

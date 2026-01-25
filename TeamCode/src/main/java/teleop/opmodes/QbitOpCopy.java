@@ -83,27 +83,27 @@ public class QbitOpCopy extends Tele {
                 double power = (-Math.signum(error)*Turret.TURRET_TARGETING_REST_POWER - error*Turret.TURRET_TARGETING_K)*0.5;
                 turret.turn(Math.abs(error) > 1 ? power : 0.0);
 
-                double targetRPM = turret.getShooterRPMFromLimelight();
-                double actual = turret.shooter.getVelocity();
+//                double targetRPM = turret.getShooterRPMFromLimelight();
+//                double actual = turret.shooter.getVelocity();
 
-                readyToShoot.set(Math.abs(error) < 1.5 && Math.abs(actual - targetRPM) < 150);
+//                readyToShoot.set(Math.abs(error) < 1.5 && Math.abs(actual - targetRPM) < 150);
 
                 // --- SUCCESSION LOGIC ---
-                double currentDip = lastVelocity - actual;
-                if (!sequenceRunning && currentDip > 140) {
-                    sequenceRunning = true;
-                    seqTimer.reset();
-                }
-                lastVelocity = actual;
-
-                if (sequenceRunning) {
-                    double elapsed = seqTimer.seconds();
-                    if (elapsed < time12) shooterTarget.set(targetRPM * ratio12);
-                    else if (elapsed < (time12 + time23)) shooterTarget.set(targetRPM * ratio23);
-                    else { sequenceRunning = false; shooterTarget.set(targetRPM); }
-                } else {
-                    shooterTarget.set(targetRPM * Turret.SHOOT_RATIO_1);
-                }
+//                double currentDip = lastVelocity - actual;
+//                if (!sequenceRunning && currentDip > 140) {
+//                    sequenceRunning = true;
+//                    seqTimer.reset();
+//                }
+//                lastVelocity = actual;
+//
+//                if (sequenceRunning) {
+//                    double elapsed = seqTimer.seconds();
+//                    if (elapsed < time12) shooterTarget.set(targetRPM * ratio12);
+//                    else if (elapsed < (time12 + time23)) shooterTarget.set(targetRPM * ratio23);
+//                    else { sequenceRunning = false; shooterTarget.set(targetRPM); }
+//                } else {
+//                    shooterTarget.set(targetRPM * Turret.SHOOT_RATIO_1);
+//                }
             } else {
                 turret.turn(0.0);
                 shooterTarget.set(2000.0);

@@ -35,12 +35,20 @@ public class StageBuilder {
         return new Stage(() -> { part.takeAccessFromMainThread(); runnable.run();}, seconds, EMPTY_RUNNABLE, () -> { part.stop(); part.returnAccessToMainThread();});
     }
 
+    public static Stage stage(RobotPart part, Runnable runnable, Supplier<Double> seconds, boolean sus){
+        return new Stage(() -> { part.takeAccessFromMainThread(); runnable.run();}, seconds, EMPTY_RUNNABLE, () -> { part.stop(); part.returnAccessToMainThread();}, sus);
+    }
+
     public static Stage stage(RobotPart part, Runnable runnable, double seconds, Runnable stop){
         return new Stage(() -> { part.takeAccessFromMainThread(); runnable.run();}, seconds, EMPTY_RUNNABLE, () -> { part.stop(); stop.run(); part.returnAccessToMainThread();});
     }
 
     public static Stage stage(RobotPart part1, RobotPart part2, Runnable runnable, double seconds){
         return new Stage(() -> { part1.takeAccessFromMainThread(); part2.takeAccessFromMainThread(); runnable.run();}, seconds, EMPTY_RUNNABLE, () -> { part1.stop(); part2.stop(); part1.returnAccessToMainThread(); part2.returnAccessToMainThread();});
+    }
+
+    public static Stage stage(RobotPart part1, RobotPart part2, Runnable start, Runnable run, double seconds){
+        return new Stage(() -> { part1.takeAccessFromMainThread(); part2.takeAccessFromMainThread(); start.run();}, seconds, run, () -> { part1.stop(); part2.stop(); part1.returnAccessToMainThread(); part2.returnAccessToMainThread();});
     }
 
     public static Stage stage(Runnable runnable, double seconds){

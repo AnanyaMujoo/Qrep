@@ -43,6 +43,15 @@ public class Stage {
         cancelRequested = new AtomicBoolean(false);
     }
 
+    public Stage(Runnable setup, Supplier<Double> seconds, Runnable loop, Runnable alwaysRunsAtEnd, boolean sus){
+        timer = new Timer();
+        this.setup = setup;
+        this.loop = loop;
+        this.loopCondition = () -> timer.seconds() < seconds.get();
+        this.alwaysRunsAtEnd = alwaysRunsAtEnd;
+        cancelRequested = new AtomicBoolean(false);
+    }
+
     public void runStage(){
         cancelRequested.set(false);
         setup.run();

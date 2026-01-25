@@ -19,7 +19,7 @@ public class Intake extends RobotPart {
     public ColorSensor detect;
 
     public final Timer timer = new Timer();
-    public final double DETECTION_DISTANCE = 5; //less than
+    public final double DETECTION_DISTANCE = 4; //less than
     public final double DETECTION_TIME = 0.3; // longer than
 
     public Supplier<Boolean> isNotDetected = () -> {

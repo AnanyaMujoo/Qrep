@@ -107,13 +107,13 @@ public class QAutoBlitz extends OpMode implements Initializer {
                     turret.turn(0.0);
                 }
 
-                double targetRPM = turret.getShooterRPMFromLimelight();
-                shooterTarget.set(targetRPM);
-                if(!isTurret23Mode.get()) {
-                    shooterTarget.set(targetRPM * Turret.SHOOT_RATIO_1);
-                } else {
-                    shooterTarget.set(targetRPM * Turret.SHOOT_RATIO_23);
-                }
+//                double targetRPM = turret.getShooterRPMFromLimelight();
+//                shooterTarget.set(targetRPM);
+//                if(!isTurret23Mode.get()) {
+//                    shooterTarget.set(targetRPM * Turret.SHOOT_RATIO_1);
+//                } else {
+//                    shooterTarget.set(targetRPM * Turret.SHOOT_RATIO_23);
+//                }
             } else {
                 turret.turn(0.0);
                 shooterTarget.set(2000.0);
