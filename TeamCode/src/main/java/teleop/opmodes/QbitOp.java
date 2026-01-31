@@ -57,18 +57,23 @@ public class QbitOp extends Tele {
 
         gpA.onClick(Button.Y, Intake);
         gpA.onClick(Button.X, () -> {
-            if(farMode.get()){
-                ShootFar.run();
-            }else{
-                Shoot.run();
-            }
+//            if(farMode.get()){
+//                ShootFar.run();
+//            }else{
+//                Shoot.run();
+//            }
+            ShootWithoutChecking.run();
         });
 //        gpA.onClick(Button.X, Shoot2);
-        gpA.onClick(Button.B, JustIntake);
-        gpA.onClick(Button.DPAD_UP, ()-> Turret.SHOOT_OFFSET_1 +=50.0);
-        gpA.onClick(Button.DPAD_DOWN, ()-> Turret.SHOOT_OFFSET_1 -=50.0);
-        gpA.onClick(Button.DPAD_RIGHT, ()-> Turret.SHOOT_OFFSET_23+=50.0);
-        gpA.onClick(Button.DPAD_LEFT, ()-> Turret.SHOOT_OFFSET_23-=50.0);
+        gpB.onClick(Button.Y, JustIntake);
+        gpB.onClick(Button.A, JustOuttake);
+//        gpB.onClick(Button.Y, StopEverything);
+        gpB.onClick(Button.DPAD_UP, ()-> Turret.SHOOT_OFFSET_1 +=50.0);
+        gpB.onClick(Button.DPAD_DOWN, ()-> Turret.SHOOT_OFFSET_1 -=50.0);
+        gpB.onClick(Button.DPAD_RIGHT, ()-> Turret.SHOOT_OFFSET_23+=50.0);
+        gpB.onClick(Button.DPAD_LEFT, ()-> Turret.SHOOT_OFFSET_23-=50.0);
+        gpB.onClick(Button.B, ()-> Turret.ANGLE_OFFSET+=0.5);
+        gpB.onClick(Button.X, ()-> Turret.ANGLE_OFFSET-=0.5);
 //        gpA.onClick(Button.Y, intake.setFeedTargetRelative(180, 1.0));
 //        intake.feeder.softResetEncoder();
 
@@ -108,24 +113,28 @@ public class QbitOp extends Tele {
 
 
         drive.move(0.7*gpA.ry, 0.7*gpA.rx, 0.6*gpA.lx);
+        turret.turret.setPower(0.4*gpB.ry);
+        intake.feeder.setPower(0.4*gpB.ly);
 
         drive.updateOdometry();
 //        display("Odo X (cm)", drive.getX());
 //        display("Distance", turret.getDistance());
 //        display("Odo Y (cm)", drive.getY());
-//        display("Odo H (deg)", drive.getHeading());
+//        display("Odo H (deg)", drive.getHeading());.
+
 //        display("Odo X | Y | H", String.format("%.1f | %.1f | %.1f", drive.getX(), drive.getY(), drive.getHeading()));
 //        display("Color Sensor Dist", intake.getDetectDistance());
-//        display("Ball Detected?", intake.getDetectDistance() < 4.1);
-        display("Target", Math.round(shooterTarget.get()));
-//        display("Actual", Math.round(turret.shooter.getVelocity()));
-        display("Distance", turret.getDistance());
-        display("Offset1", Turret.SHOOT_OFFSET_1);
-        display("Offset23", Turret.SHOOT_OFFSET_23);
+//////        display("Ball Detected?", intake.getDetectDistance() < 4.1);
+//        display("Target", Math.round(shooterTarget.get()));
+////        display("Actual", Math.round(turret.shooter.getVelocity()));
+////        display("Distance", turret.getDistance());
+//        display("Offset1", Turret.SHOOT_OFFSET_1);
+//        display("Offset23", Turret.SHOOT_OFFSET_23);
 //        display("distance", turret.getDistance());
 //        display("distance color sensor",intake.getDetectDistance());
 
-        display("READY TO BLITZ", readyToShoot.get() ? "!!! YES !!!" : "AIMING...");
+//        display("READY TO BLITZ", readyToShoot.get() ? "!!! YES !!!" : "AIMING...");
+//        display("limey distance", turret.getPoseWithLimey());
 
 //        display("Shooter Target | Actual", shooterTarget.get() + " | " + turret.shooter.getVelocity());
 //        display("Turn Error", turnError.get());
@@ -218,11 +227,11 @@ public class QbitOp extends Tele {
 
 
 
-                if(timer.seconds() > 0.5 && Math.abs(error) > 0.5) {
-                    turret.turret.softResetEncoder();
-                    turret.turret.setTarget(-error, 0.1);
-                    timer.reset();
-                }
+//                if(timer.seconds() > 0.5 && Math.abs(error) > 0.5) {
+//                    turret.turret.softResetEncoder();
+//                    turret.turret.setTarget(-error, 0.1);
+//                    timer.reset();
+//                }
 
 //                display("Angle", angle);
 //                display("TargetAngle", targetAngle);
@@ -275,7 +284,7 @@ public class QbitOp extends Tele {
 
 //                display("TargetRPM", targetRPM);
 
-                display("Farmode", farMode.get());
+//                display("Farmode", farMode.get());
 
 //                display("RPM", targetRPM);
             }else{

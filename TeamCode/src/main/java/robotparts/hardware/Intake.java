@@ -57,8 +57,18 @@ public class Intake extends RobotPart {
 
 
     public Runnable setFeedTargetRelative(double target, double power){
-        return () -> {feeder.softResetEncoder(); feeder.setTarget(target, power);};
+        return () -> {
+            feeder.softResetEncoder();
+            feeder.setTarget(target, power);
+        };
     }
+//    public Runnable setFeedTargetRelative(double target, double power){
+//        return () -> {
+////            feeder.softResetEncoder();+
+//            double start = feeder.getPosition();
+//            feeder.setTarget(target+start, power);
+//        };
+//    }
 
     public Runnable resetFeedRunMode(){
         return () -> feeder.resetRunMode();

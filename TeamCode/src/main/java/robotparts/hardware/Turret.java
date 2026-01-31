@@ -49,7 +49,7 @@ public class Turret extends RobotPart {
     public static final double maxTurretRotation = 180;
     public static final double minTurretRotation = -20;
 
-
+    public static double ANGLE_OFFSET = -5.5;
     public static double SHOOT_OFFSET_1 = 0;
     public static double SHOOT_OFFSET_23 = 0;
 
@@ -65,6 +65,10 @@ public class Turret extends RobotPart {
 
     @Override
     public void init() {
+        if (fieldSide == FieldSide.RED){
+             distances = new double[]{193, 270, 430, 607, 672};
+
+        }
         turret = createMotorWithEncoderRotational("tu", MOTOR_FORWARD, MOTOR_BRAKE, false, 537.6, 4);
         shooter = createMotorWithEncoderRotational("sh", MOTOR_FORWARD, MOTOR_FLOAT, false, 28.0, 1);
         timer.reset();
@@ -108,7 +112,7 @@ public class Turret extends RobotPart {
             double angle = 0;
             double distance = HEIGHT_DIFFERENCE/Math.tan(Math.toRadians(MOUNT_ANGLE+ty));
             if(fieldSide == FieldSide.BLUE) {
-                angle = llResult.getTx() - 5.5;
+                angle = llResult.getTx() - ANGLE_OFFSET;
             }
             else{
 
@@ -264,6 +268,19 @@ public class Turret extends RobotPart {
         if(turnError > 1.7 || shootError > 120){
             timer2.reset();
         }else return timer2.seconds() < 0.5;
+
+        return true;
+    };
+
+    public Supplier<Boolean> isNotReadyRPM = () -> {
+        velocityArray.add(shooter.getVelocity());
+        int last = velocityArray.size()-1;
+        double averageVelocity = (velocityArray.get(last) + velocityArray.get(last-1) + velocityArray.get(last-2))/3.0;
+        double shootError = Math.abs(QbitOp.shooterTarget.get() - averageVelocity);
+
+        if(shootError > 150){
+            timer2.reset();
+        }else return timer2.seconds() < 0.4;
 
         return true;
     };

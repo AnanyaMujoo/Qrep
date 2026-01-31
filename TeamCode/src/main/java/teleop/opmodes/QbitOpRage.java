@@ -105,13 +105,13 @@ public class QbitOpRage extends Tele {
 //                }else{
 //                    finalAngle = attackAngle;
 //                }
-                double factor = Math.exp(-distance/20);
-                double finalAngle = (attackAngle*(1-factor));
+//                double factor = Math.exp(-distance/20);
+//                double finalAngle = (attackAngle*(1-factor));
                 turret.turret.softResetEncoder();
-                turret.turret.setTarget(Math.toDegrees(finalAngle), 0.15);
+                turret.turret.setTarget(Math.toDegrees(0), 0.15);
                 pathChain = follower.pathBuilder()
                         .addPath(new BezierLine(new com.pedropathing.geometry.Pose(currentPosition.getX(DistanceUnit.INCH), currentPosition.getY(DistanceUnit.INCH), Math.toRadians(0)), new com.pedropathing.geometry.Pose(0, 0, Math.toRadians(0))))
-                        .setLinearHeadingInterpolation(currentPosition.getHeading(AngleUnit.RADIANS), finalAngle)
+                        .setLinearHeadingInterpolation(startHeading, 0)
                         .build();
                 follower.followPath(pathChain);
                 autoIndex++;

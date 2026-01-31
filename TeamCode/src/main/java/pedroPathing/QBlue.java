@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-@Autonomous(name = "QAutoTest", group = "Autonomous")
+@Autonomous(name = "QBlueAuto", group = "Autonomous")
 @Configurable
 public class QBlue extends Auto {
 
@@ -119,7 +119,7 @@ public class QBlue extends Auto {
     );
 
     ChainMaker ShootSecondQ = () -> new Chain(
-            stage(intake, intake.setFeedTargetRelative(-240, 0.4), () -> !intake.feeder.isMotorAtTarget()),
+            stage(intake, intake.setFeedTargetRelative(-400, 0.4), () -> !intake.feeder.isMotorAtTarget()),
             stage(intake, intake::unlock, 0.2),
             stage(intake, intake.resetFeedRunMode()),
             stage(() -> shooterTarget.set(SHOOT_23)),
@@ -177,7 +177,7 @@ public class QBlue extends Auto {
         addChain(ShootFirstQ);
         addLine(-14, -24, 270,270);
         addConcurrentChain(IntakeQ);
-        addLineBoost(-14, -57, 270,270);
+        addLineBoost(-14, -55, 270,270);
         addLine(-7, -46, 180,180);
         addConcurrentChain(SpinUpQ);
         addLine(-7, -58, 180,180);

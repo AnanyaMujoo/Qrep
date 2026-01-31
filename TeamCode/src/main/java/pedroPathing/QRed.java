@@ -119,7 +119,7 @@ public class QRed extends Auto {
     );
 
     ChainMaker ShootSecondQ = () -> new Chain(
-            stage(intake, intake.setFeedTargetRelative(-360, 1), () -> !intake.feeder.isMotorAtTarget()),
+            stage(intake, intake.setFeedTargetRelative(-400, 1), () -> !intake.feeder.isMotorAtTarget()),
             stage(intake, intake::unlock, 0.2),
             stage(intake, intake.resetFeedRunMode()),
             stage(() -> shooterTarget.set(SHOOT_23)),
@@ -128,12 +128,12 @@ public class QRed extends Auto {
 
     ChainMaker IntakeQ = () -> new Chain(
             stage(intake, intake::lock),
-            stage(intake, () -> intake.intakeAndFeed(1), 2)
+            stage(intake, () -> intake.intakeAndFeed(1), 1.5)
     );
 
     ChainMaker IntakeAndSpinUpQ = () -> new Chain(
             stage(intake, intake::lock),
-            stage(intake, () -> intake.intakeAndFeed(1), 2),
+            stage(intake, () -> intake.intakeAndFeed(1), 1.5),
             stage(() -> shooterTarget.set(SHOOT_1))
     );
 
