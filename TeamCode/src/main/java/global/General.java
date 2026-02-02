@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import elements.FieldSide;
+import elements.Mode;
 import teleop.teleutil.GamepadHandler;
 
 public class General {
@@ -46,6 +47,8 @@ public class General {
      * FieldSide object to represent which side of the field we are on (red or blue)
      */
     public static FieldSide fieldSide = FieldSide.BLUE;
+
+    public static Mode mode =  Mode.NO_SCALER;
     /**
      * FieldPlacement object to represent which location of the field we are on (upper [closer to audience] or lower)
      */

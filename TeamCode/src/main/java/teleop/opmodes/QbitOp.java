@@ -38,6 +38,7 @@ public class QbitOp extends Tele {
 
     public static AtomicBoolean farMode = new AtomicBoolean(false);
 
+    public static boolean ScalerMode = false;
 
     public ArrayList<Double> angleArray = new ArrayList<>();
 
@@ -56,6 +57,9 @@ public class QbitOp extends Tele {
 //        turret.turret.setPIDF(6, 0, 0, 14);
 
         gpA.onClick(Button.Y, Intake);
+        gpA.onClick(Button.RIGHT_TRIGGER, () ->{
+            ScalerMode = !ScalerMode;
+        });
         gpA.onClick(Button.X, () -> {
             if(farMode.get()){
                 ShootFar.run();
@@ -65,10 +69,10 @@ public class QbitOp extends Tele {
         });
 //        gpA.onClick(Button.X, Shoot2);
         gpA.onClick(Button.B, JustIntake);
-        gpA.onClick(Button.DPAD_UP, ()-> Turret.SHOOT_OFFSET_1 +=50.0);
-        gpA.onClick(Button.DPAD_DOWN, ()-> Turret.SHOOT_OFFSET_1 -=50.0);
-        gpA.onClick(Button.DPAD_RIGHT, ()-> Turret.SHOOT_OFFSET_23+=50.0);
-        gpA.onClick(Button.DPAD_LEFT, ()-> Turret.SHOOT_OFFSET_23-=50.0);
+        gpA.onClick(Button.DPAD_UP, ()-> Turret.SHOOT_OFFSET_1 +=20.0);
+        gpA.onClick(Button.DPAD_DOWN, ()-> Turret.SHOOT_OFFSET_1 -=20.0);
+        gpA.onClick(Button.DPAD_RIGHT, ()-> Turret.SHOOT_OFFSET_23+=20.0);
+        gpA.onClick(Button.DPAD_LEFT, ()-> Turret.SHOOT_OFFSET_23-=20.0);
 //        gpA.onClick(Button.Y, intake.setFeedTargetRelative(180, 1.0));
 //        intake.feeder.softResetEncoder();
 
@@ -119,9 +123,10 @@ public class QbitOp extends Tele {
 //        display("Ball Detected?", intake.getDetectDistance() < 4.1);
         display("Target", Math.round(shooterTarget.get()));
 //        display("Actual", Math.round(turret.shooter.getVelocity()));
-        display("Distance", turret.getDistance());
+        display("Distance", turret.getPoseY());
         display("Offset1", Turret.SHOOT_OFFSET_1);
         display("Offset23", Turret.SHOOT_OFFSET_23);
+
 //        display("distance", turret.getDistance());
 //        display("distance color sensor",intake.getDetectDistance());
 
@@ -187,7 +192,9 @@ public class QbitOp extends Tele {
 
         if(isTurretTargeting.get()){
             Pose pose = turret.getPoseWithLimey();
-            double distance = pose.getY();
+            double distance = pose.y;
+            double distanceInches = turret.getDistanceInches();
+            display("RPM1", turret.getRPM1(distanceInches));
             double angle = pose.getAngle();
 //            display("Angle", angle);
 //            display("Distance", distance);
@@ -258,12 +265,24 @@ public class QbitOp extends Tele {
 
 
                 if(!isTurret23Mode.get()) {
-                    shooterTarget.set(turret.getRPM1(distance) + Turret.SHOOT_OFFSET_1);
+                    if (ScalerMode) {
+                        shooterTarget.set(turret.getRPM1(distanceInches) + Turret.SHOOT_OFFSET_1);
+                    }
+
+                    else{
+                        shooterTarget.set(turret.getClosestRPM1(distanceInches) + Turret.SHOOT_OFFSET_1);
+                    }
                 }else{
-                    shooterTarget.set(turret.getRPM23(distance) + Turret.SHOOT_OFFSET_23);
+                    if(ScalerMode) {
+                        shooterTarget.set(turret.getRPM23(distanceInches) + Turret.SHOOT_OFFSET_23);
+                    }
+                    else{
+                        shooterTarget.set(turret.getClosestRPM23(distanceInches) + Turret.SHOOT_OFFSET_23);
+
+                    }
                 }
 
-                farMode.set(distance > 500);
+                farMode.set(distance > 90);
 
 //                if(distance > 400 && !farMode.get()){
 //                    farMode.set(true);
@@ -318,4 +337,5 @@ public class QbitOp extends Tele {
 
     @TeleOp(name = "RedTeleOp", group = "TeleOp")
     public static class RedTeleOp extends QbitOp {{fieldSide = FieldSide.RED; }}
+
 }

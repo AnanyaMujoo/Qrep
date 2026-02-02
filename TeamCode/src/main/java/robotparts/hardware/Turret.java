@@ -59,9 +59,10 @@ public class Turret extends RobotPart {
 
 
 
-    public double[] rpm1 = new double[]{2250, 2500, 2650, 2900, 3750};
-    public double[] rpm23 = new double[]{2900, 2900, 3200, 3200, 4000};
-    public double[] distances = new double[]{193, 270, 430, 530, 672};
+    public double[] rpm1 = new double[]{2500-20, 2500+260, 3300, 1040+2500};
+    public double[] rpm23 = new double[]{2500+400, 2500+600, 3360, 1180+2500};
+    public double[] distances = new double[]{ 48, 74, 107.7, 120.8};
+    public double[] angle_offsets = new double[]{};
 
     @Override
     public void init() {
@@ -106,7 +107,7 @@ public class Turret extends RobotPart {
         if (llResult != null && llResult.isValid()) {
             double ty = llResult.getTy();
             double angle = 0;
-            double distance = HEIGHT_DIFFERENCE/Math.tan(Math.toRadians(MOUNT_ANGLE+ty));
+            double distance = HEIGHT_DIFFERENCE/Math.tan(Math. toRadians(MOUNT_ANGLE+ty));
             if(fieldSide == FieldSide.BLUE) {
                 angle = llResult.getTx() - 5.5;
             }
@@ -133,8 +134,39 @@ public class Turret extends RobotPart {
         Pose limey = getPoseWithLimey();
         return new Pose(0,  300*Math.atan(limey.getY()/1500.0), limey.getAngle());
     }
+    public double getPoseY(){
+        Pose limey = getPoseWithLimey();
+        return 300*Math.atan(limey.getY()/1500.0);
+    }
+    public double getClosestRPM1(double currentDistance){
+        double min = 1000000;
+        int index = 0;
+        if (currentDistance> 136){
+            return rpm1[2];
+        }
+        for(int i =0 ; i<4; i++ ){
+            if (Math.abs(distances[i]-currentDistance)<min){
+                index = i;
+                min = Math.abs(distances[i]-currentDistance);
+            }
+        }
 
-
+        return rpm1[index];
+    }
+    public double getClosestRPM23(double currentDistance){
+        double min = 1000000;
+        int index = 0;
+        if (currentDistance> 136){
+            return rpm23 [2];
+        }
+        for(int i =0 ; i<4; i++ ){
+            if (Math.abs(distances[i]-currentDistance)<min){
+                index = i;
+                min = Math.abs(distances[i]-currentDistance);
+            }
+        }
+        return rpm23[index];
+    }
     public double getRPM1(double currentDistance){
         if(currentDistance < distances[0]){
             return rpm1[0];
