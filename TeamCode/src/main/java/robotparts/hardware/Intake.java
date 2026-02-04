@@ -73,7 +73,7 @@ public class Intake extends RobotPart {
     }
 
     public void lock(){
-        lock.moveTo(1.0);
+        lock.moveTo(1.00);
     }
 //    public void lockTime(double power, double time){lock.move}
 

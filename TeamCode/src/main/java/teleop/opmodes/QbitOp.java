@@ -6,7 +6,17 @@ import static robotparts.RobotConfig.drive;
 import static robotparts.RobotConfig.intake;
 import static robotparts.RobotConfig.turret;
 
+import com.pedropathing.control.FilteredPIDFCoefficients;
+import com.pedropathing.control.PIDFCoefficients;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.follower.FollowerConstants;
+import com.pedropathing.ftc.FollowerBuilder;
+import com.pedropathing.geometry.BezierLine;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -15,6 +25,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import elements.FieldSide;
 import geometry.Pose;
 import global.Common;
+import pedroPathing.Constants;
 import robotparts.hardware.Turret;
 import teleop.Tele;
 import teleop.teleutil.Button;
@@ -30,6 +41,9 @@ public class QbitOp extends Tele {
     public static AtomicReference<Double> turnError = new AtomicReference<>(0.0);
 
     public static AtomicBoolean isTurretTargeting = new AtomicBoolean(false);
+    public static AtomicBoolean isAutoMode= new AtomicBoolean(false);
+
+
     public static AtomicBoolean isTurret23Mode = new AtomicBoolean(false);
     private double ratio12 = 1.05;
     private double ratio23 = 1.10;
@@ -41,9 +55,12 @@ public class QbitOp extends Tele {
     public static boolean ScalerMode = false;
 
     public ArrayList<Double> angleArray = new ArrayList<>();
-
+    // Example coordinates: X, Y, and Heading (in Radians)
+    public static final Pose2D POSE_A_TARGET = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, Math.toRadians(0));
+    public static final Pose2D POSE_B_TARGET = new Pose2D(DistanceUnit.INCH, 10, 0, AngleUnit.RADIANS, Math.toRadians(0));
     public Timer timer = new Timer();
-
+    public Follower follower;
+    public int autoIndex = 0;
     @Override
     public void initTele() {
 
@@ -60,6 +77,54 @@ public class QbitOp extends Tele {
         gpA.onClick(Button.RIGHT_TRIGGER, () ->{
             ScalerMode = !ScalerMode;
         });
+
+        turret.turret.hardResetEncoder();
+        drive.pinpoint.resetPosAndIMU();
+
+        autoIndex = 0;
+        FilteredPIDFCoefficients zeroFiltered = new FilteredPIDFCoefficients(0, 0, 0, 0, 0);
+        PIDFCoefficients zeroPID = new PIDFCoefficients(0, 0, 0, 0);
+
+        FollowerConstants followerConstants2 = new FollowerConstants()
+                .mass(12.55)
+                .forwardZeroPowerAcceleration(-43.8014)
+                .lateralZeroPowerAcceleration(-74.98348806)
+                .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.0079, 0.0,0.00, 0.00, 0.04))
+                .translationalPIDFCoefficients(new PIDFCoefficients(0.0079, 0.0,0.00, 0.03));
+        follower = new FollowerBuilder(followerConstants2, hardwareMap)
+                .pinpointLocalizer(Constants.localizerConstants)
+                .pathConstraints(Constants.pathConstraints)
+                .mecanumDrivetrain(Constants.driveConstants)
+                .build();
+        follower.setStartingPose(new com.pedropathing.geometry.Pose(0, 0, Math.toRadians(0)));
+
+//        drive.pinpoint.setHeading(225, AngleUnit.DEGREES);
+        gpA.onClick(Button.RIGHT_BUMPER, () ->{
+            follower.breakFollowing();
+
+            // 2. Wipe coefficients so the PID controller does nothing
+            follower.setDrivePIDFCoefficients(new FilteredPIDFCoefficients(0.0079, 0.0,0.00, 0.00, 0.04));
+            follower.setTranslationalPIDFCoefficients(new PIDFCoefficients(0.0079, 0.0,0.00, 0.03));
+
+            // 3. Optional: Reset motor powers to zero just to be safe
+            drive.move(0,0,0);
+            isAutoMode.set(true);
+
+        });
+        gpA.onClick(Button.LEFT_BUMPER, () ->{
+            follower.breakFollowing();
+
+            // 2. Wipe coefficients so the PID controller does nothing
+            follower.setDrivePIDFCoefficients(new FilteredPIDFCoefficients(0,0,0,0,0));
+            follower.setTranslationalPIDFCoefficients(new PIDFCoefficients(0,0,0,0));
+
+            // 3. Optional: Reset motor powers to zero just to be safe
+            drive.move(0,0,0);
+            isAutoMode.set(false);
+
+        });
+
+        gpA.onClick(Button.LEFT_TRIGGER, () -> drive.pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 0,0, AngleUnit.DEGREES, 0)));
         gpA.onClick(Button.X, () -> {
             if(farMode.get()){
                 ShootFar.run();
@@ -68,7 +133,32 @@ public class QbitOp extends Tele {
             }
         });
 //        gpA.onClick(Button.X, Shoot2);
-        gpA.onClick(Button.B, JustIntake);
+        gpB.onClick(Button.B, JustIntake);
+        gpA.onClick(Button.A, () -> {
+            Pose2D currentPosition = drive.pinpoint.getPosition();
+            double finalAngle = POSE_A_TARGET.getHeading(AngleUnit.RADIANS);
+
+            follower.followPath(follower.pathBuilder()
+                    .addPath(new BezierLine(
+                            new com.pedropathing.geometry.Pose(currentPosition.getX(DistanceUnit.INCH), currentPosition.getY(DistanceUnit.INCH), currentPosition.getHeading(AngleUnit.RADIANS)),
+                            new com.pedropathing.geometry.Pose(POSE_A_TARGET.getX(DistanceUnit.INCH), POSE_A_TARGET.getY(DistanceUnit.INCH), finalAngle)
+                    ))
+                    .setLinearHeadingInterpolation(currentPosition.getHeading(AngleUnit.RADIANS), finalAngle)
+                    .build());
+        });
+
+        gpA.onClick(Button.B, () -> {
+            Pose2D currentPosition = drive.pinpoint.getPosition();
+            double finalAngle = POSE_B_TARGET.getHeading(AngleUnit.RADIANS);
+
+            follower.followPath(follower.pathBuilder()
+                    .addPath(new BezierLine(
+                            new com.pedropathing.geometry.Pose(currentPosition.getX(DistanceUnit.INCH), currentPosition.getY(DistanceUnit.INCH), currentPosition.getHeading(AngleUnit.RADIANS)),
+                            new com.pedropathing.geometry.Pose(POSE_B_TARGET.getX(DistanceUnit.INCH), POSE_B_TARGET.getY(DistanceUnit.INCH), finalAngle)
+                    ))
+                    .setLinearHeadingInterpolation(currentPosition.getHeading(AngleUnit.RADIANS), finalAngle)
+                    .build());
+        });
         gpA.onClick(Button.DPAD_UP, ()-> Turret.SHOOT_OFFSET_1 +=20.0);
         gpA.onClick(Button.DPAD_DOWN, ()-> Turret.SHOOT_OFFSET_1 -=20.0);
         gpA.onClick(Button.DPAD_RIGHT, ()-> Turret.SHOOT_OFFSET_23+=20.0);
@@ -106,13 +196,37 @@ public class QbitOp extends Tele {
     public void startTele() {
 //        turret.limey.start();
     }
+    public void switchToManual() {
+        // 1. Stop any active path immediately
+        follower.breakFollowing();
 
+        // 2. Wipe coefficients so the PID controller does nothing
+        follower.setDrivePIDFCoefficients(new FilteredPIDFCoefficients(0,0,0,0,0));
+        follower.setTranslationalPIDFCoefficients(new PIDFCoefficients(0,0,0,0));
+
+        // 3. Optional: Reset motor powers to zero just to be safe
+        drive.move(0,0,0);
+        isAutoMode.set(false);
+    }
+    public void switchToAuto() {
+        // 1. Stop any active path immediately
+        follower.breakFollowing();
+
+        // 2. Wipe coefficients so the PID controller does nothing
+        follower.setDrivePIDFCoefficients(new FilteredPIDFCoefficients(0.0079, 0.0,0.00, 0.00, 0.04));
+        follower.setTranslationalPIDFCoefficients(new PIDFCoefficients(0.0079, 0.0,0.00, 0.03));
+
+        // 3. Optional: Reset motor powers to zero just to be safe
+        drive.move(0,0,0);
+        isAutoMode.set(true);
+    }
     @Override
     public void loopTele() {
+        follower.update();
 
-
-        drive.move(0.7*gpA.ry, 0.7*gpA.rx, 0.6*gpA.lx);
-
+        if(!isAutoMode.get()) {
+            drive.move(0.7 * gpA.ry, 0.7 * gpA.rx, 0.6 * gpA.lx);
+        }
         drive.updateOdometry();
 //        display("Odo X (cm)", drive.getX());
 //        display("Distance", turret.getDistance());

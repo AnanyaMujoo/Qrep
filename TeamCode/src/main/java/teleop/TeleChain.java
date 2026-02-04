@@ -158,7 +158,7 @@ public interface TeleChain {
 
  ChainMaker JustIntake = () -> new Chain(
          stage(intake, intake::unlock, 0.1),
-         stage(intake, () -> intake.intakeAndFeed(1))
+         stage(intake, () -> intake.intakeAndFeed(1), 1)
 
          );
 //    ChainMaker Shoot2 = () -> new Chain(
