@@ -19,7 +19,7 @@ public interface TeleChainCopy {
             // 1. Prepare
             stage(intake, () -> QbitOpCopy.isTurretTargeting.set(true)),
             stage(intake, () -> QbitOpCopy.isTurret23Mode.set(false)),
-            stage(intake, intake.setFeedTargetRelative(-360, 1), () -> !intake.feeder.isMotorAtTarget()),
+            stage(intake, intake.setFeedTargetRelative(-380, 1), () -> !intake.feeder.isMotorAtTarget()),
             stage(intake, intake::unlock, 0.2),
             stage(intake, intake.resetFeedRunMode()),
 
@@ -33,7 +33,7 @@ public interface TeleChainCopy {
             stage(intake, () -> {
                 QbitOpCopy.isTurret23Mode.set(true);
             }),
-            stage(intake, () -> intake.intakeAndFeed(1), 2.0),
+            stage(intake, () -> intake.intakeAndFeed(0.8), 2.0),
 
             // 5. Reset
             stage(intake, () -> QbitOpCopy.isTurretTargeting.set(false)),

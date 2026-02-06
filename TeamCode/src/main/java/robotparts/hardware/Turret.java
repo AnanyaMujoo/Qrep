@@ -141,8 +141,8 @@ public class Turret extends RobotPart {
     public double getClosestRPM1(double currentDistance){
         double min = 1000000;
         int index = 0;
-        if (currentDistance> 136){
-            return rpm1[2];
+        if (currentDistance> 120){
+            return 0.0;
         }
         for(int i =0 ; i<4; i++ ){
             if (Math.abs(distances[i]-currentDistance)<min){
@@ -156,8 +156,8 @@ public class Turret extends RobotPart {
     public double getClosestRPM23(double currentDistance){
         double min = 1000000;
         int index = 0;
-        if (currentDistance> 136){
-            return rpm23 [2];
+        if (currentDistance> 120){
+            return 0.0;
         }
         for(int i =0 ; i<4; i++ ){
             if (Math.abs(distances[i]-currentDistance)<min){

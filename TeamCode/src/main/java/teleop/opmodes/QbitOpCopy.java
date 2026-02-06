@@ -44,12 +44,14 @@ public class QbitOpCopy extends Tele {
     public static AtomicBoolean isTurretPresetMode = new AtomicBoolean(false);
     public static AtomicBoolean isTurret23Mode = new AtomicBoolean(false);
     public static AtomicBoolean readyToShoot = new AtomicBoolean(false);
-    public static AtomicBoolean farMode = new AtomicBoolean(false);
+    public static AtomicBoolean farMode = new AtomicBoolean(true);
     public static boolean ScalerMode = false;
 
     // POSITIONS
     public static final Pose2D RESET_POSE = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0);
-    public static final Pose2D SHOOT_POSE = new Pose2D(DistanceUnit.INCH, -63, 19, AngleUnit.DEGREES, 0);
+    public static final Pose2D SHOOT_POSE = new Pose2D(DistanceUnit.INCH, -60, 15, AngleUnit.DEGREES, 0);
+    public static final Pose2D INTAKE_POSE = new Pose2D(DistanceUnit.INCH, -20, 12, AngleUnit.DEGREES, 0);
+
     public static final double TURRET_SHOOT_ANGLE = -110.0;
 
     public Timer timer = new Timer();
@@ -100,8 +102,7 @@ public class QbitOpCopy extends Tele {
                     RESET_POSE.getY(DistanceUnit.INCH),
                     RESET_POSE.getHeading(AngleUnit.RADIANS)));
         });
-
-        gpA.onClick(Button.B, () -> {
+        gpA.onClick(Button.RIGHT_BUMPER, () -> {
             switchToAuto();
             isTurretPresetMode.set(true);
             turret.turret.setTarget(TURRET_SHOOT_ANGLE, 1.0);
@@ -116,6 +117,24 @@ public class QbitOpCopy extends Tele {
                     ))
                     .setLinearHeadingInterpolation(currentPosition.getHeading(AngleUnit.RADIANS), finalAngle)
                     .build());
+        }
+        );
+        gpA.onClick(Button.LEFT_BUMPER, () -> {
+            switchToAuto();
+            isTurretPresetMode.set(true);
+            isTurretTargeting.set(false);
+            turret.turret.setTarget(TURRET_SHOOT_ANGLE, 1.0);
+
+            Pose2D currentPosition = drive.pinpoint.getPosition();
+            double finalAngle = SHOOT_POSE.getHeading(AngleUnit.RADIANS);
+
+            follower.followPath(follower.pathBuilder()
+                    .addPath(new BezierLine(
+                            new com.pedropathing.geometry.Pose(currentPosition.getX(DistanceUnit.INCH), currentPosition.getY(DistanceUnit.INCH), currentPosition.getHeading(AngleUnit.RADIANS)),
+                            new com.pedropathing.geometry.Pose(INTAKE_POSE.getX(DistanceUnit.INCH), INTAKE_POSE.getY(DistanceUnit.INCH), finalAngle)
+                    ))
+                    .setLinearHeadingInterpolation(currentPosition.getHeading(AngleUnit.RADIANS), finalAngle)
+                    .build());
         });
 
         gpA.onClick(Button.DPAD_UP, () -> Turret.SHOOT_OFFSET_1 += 20.0);
@@ -126,7 +145,7 @@ public class QbitOpCopy extends Tele {
         gpB.onClick(Button.B, TeleChainCopy.JustIntake);
 
         readyToShoot.set(false);
-        farMode.set(false);
+        farMode.set(true);
         shooterTarget.set(0.0);
         oldTarget.set(0.0);
         isTurretTargeting.set(false);
@@ -187,6 +206,13 @@ public class QbitOpCopy extends Tele {
         display("RPM Error", String.format("%.1f (Need < 150)", rpmError));
         display("Angle Error", String.format("%.2f (Need < 1.5)", angleErr));
         display("READY TO BLITZ", readyToShoot.get() ? "!!! YES !!!" : "AIMING...");
+        display("isTurretTargeting", isTurretTargeting.get());
+        display("Offset1", Turret.SHOOT_OFFSET_1);
+        display("Offset23", Turret.SHOOT_OFFSET_23);
+        display("Distance", turret.getPoseY());
+
+        display("TargetRPM", shooterTarget.get());
+
 
         // --- TURRET LOGIC ---
         if (isTurretTargeting.get()) {
@@ -197,14 +223,14 @@ public class QbitOpCopy extends Tele {
             double targetAngle = Math.toDegrees(Math.atan(Turret.LIMEY_LEFT_DISTANCE / distance));
             double error = targetAngle - angle;
 
-            if (distance > 80) {
+            if (distance > 30) {
                 targetAngle = Math.toDegrees(Math.atan(Turret.LIMEY_LEFT_DISTANCE / distance));
                 error = targetAngle - (angle);
                 turnError.set(error);
 
                 if (timer.seconds() > 0.5 && Math.abs(error) > 0.5) {
-                    turret.turret.softResetEncoder();
-                    turret.turret.setTarget(-error, 0.1);
+                    double currentPos = turret.turret.getPosition();
+                    turret.turret.setTarget(currentPos - error, 0.2);
                     timer.reset();
                 }
 
@@ -221,7 +247,7 @@ public class QbitOpCopy extends Tele {
                         shooterTarget.set(turret.getClosestRPM23(distanceInches) + Turret.SHOOT_OFFSET_23);
                     }
                 }
-                farMode.set(distance > 90);
+                farMode.set(distance > 83);
 
                 // --- READY CHECK ---
                 boolean isAngleGood = Math.abs(error) < 1.5;
