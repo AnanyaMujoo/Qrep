@@ -1,6 +1,5 @@
-package teleop.opmodes;
+package teleop.unused;
 
-import static global.Common.gamepad2;
 import static global.General.fieldSide;
 import static robotparts.RobotConfig.drive;
 import static robotparts.RobotConfig.intake;
@@ -24,7 +23,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import elements.FieldSide;
 import geometry.Pose;
-import global.Common;
 import pedroPathing.Constants;
 import robotparts.hardware.Turret;
 import teleop.Tele;
@@ -446,10 +444,10 @@ public class QbitOp extends Tele {
     public void stopTele() {
         turret.limey.stop();
     }
-    @TeleOp(name = "BlueTeleOp", group = "TeleOp")
-    public static class BlueTeleOp extends QbitOp {{fieldSide = FieldSide.BLUE; }}
-
-    @TeleOp(name = "RedTeleOp", group = "TeleOp")
-    public static class RedTeleOp extends QbitOp {{fieldSide = FieldSide.RED; }}
+//    @TeleOp(name = "BlueTeleOp", group = "TeleOp")
+//    public static class BlueTeleOp extends QbitOp {{fieldSide = FieldSide.BLUE; }}
+//
+//    @TeleOp(name = "RedTeleOp", group = "TeleOp")
+//    public static class RedTeleOp extends QbitOp {{fieldSide = FieldSide.RED; }}
 
 }

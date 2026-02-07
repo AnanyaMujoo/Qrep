@@ -15,9 +15,8 @@ import java.util.function.Supplier;
 
 import geometry.Pose;
 import robotparts.RobotPart;
-import robotparts.electronics.Motor;
 import robotparts.electronics.MotorWithEncoderRotational;
-import teleop.opmodes.QbitOp;
+import teleop.unused.QbitOp;
 import utility.Timer;
 
 public class Turret extends RobotPart {
@@ -52,7 +51,7 @@ public class Turret extends RobotPart {
 
     public static double SHOOT_OFFSET_1 = 0;
     public static double SHOOT_OFFSET_23 = 0;
-
+    public static double ANGLE_OFFSET = 0;
 //    public static double SHOOT_RATIO_23 = SHOOT_RATIO_1*1.42;
 
     public ArrayList<Double> velocityArray = new ArrayList<>();
@@ -109,11 +108,11 @@ public class Turret extends RobotPart {
             double angle = 0;
             double distance = HEIGHT_DIFFERENCE/Math.tan(Math. toRadians(MOUNT_ANGLE+ty));
             if(fieldSide == FieldSide.BLUE) {
-                angle = llResult.getTx() - 5.5;
+                angle = llResult.getTx() - 5.5-ANGLE_OFFSET;
             }
             else{
 
-                    angle = llResult.getTx();
+                    angle = llResult.getTx()+5.5+ANGLE_OFFSET;
 
 
             }

@@ -117,7 +117,10 @@ public class QBlue extends Auto {
             stage(() -> shooterTarget.set(SHOOT_23)),
             stage(intake, () -> intake.intakeAndFeed(1), 1)
     );
-
+    ChainMaker IntakeQ1 = () -> new Chain(
+            stage(intake, intake::lock, 0.1),
+            stage(intake, () -> intake.intakeAndFeed(0.7), 2)
+    );
     ChainMaker ShootSecondQ = () -> new Chain(
             stage(intake, intake.setFeedTargetRelative(-240, 0.4), () -> !intake.feeder.isMotorAtTarget()),
             stage(intake, intake::unlock, 0.2),
@@ -157,7 +160,6 @@ ChainMaker Lock= () -> new Chain(
 
     @Override
     public void initAuto() {
-        intake.unlock();
         follower = Constants.createFollower(hardwareMap);
         followerBoosted = new FollowerBuilder(followerConstants2, hardwareMap)
                 .pinpointLocalizer(Constants.localizerConstants)

@@ -1,19 +1,12 @@
 package teleop;
 
 import static chains.StageBuilder.stage;
-import static robotparts.RobotConfig.drive;
 import static robotparts.RobotConfig.intake;
 import static robotparts.RobotConfig.turret;
 
-import android.content.QuickViewConstants;
-
-import java.util.function.Supplier;
-
 import chains.Chain;
 import chains.ChainMaker;
-import chains.Stage;
-import teleop.opmodes.QbitOp;
-import teleop.opmodes.QbitOpCopy;
+import teleop.unused.QbitOp;
 
 public interface TeleChain {
 

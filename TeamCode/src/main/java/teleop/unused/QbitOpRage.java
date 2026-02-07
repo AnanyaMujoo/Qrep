@@ -1,8 +1,7 @@
-package teleop.opmodes;
+package teleop.unused;
 
 import static global.General.fieldSide;
 import static robotparts.RobotConfig.drive;
-import static robotparts.RobotConfig.intake;
 import static robotparts.RobotConfig.turret;
 
 import com.pedropathing.control.FilteredPIDFCoefficients;
@@ -18,19 +17,13 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
-import java.util.ArrayList;
-import java.util.Deque;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 import elements.FieldSide;
 import geometry.Pose;
 import pedroPathing.Constants;
-import robotparts.hardware.Turret;
 import teleop.Tele;
 import teleop.teleutil.Button;
-import utility.Timer;
 
 @TeleOp
 public class QbitOpRage extends Tele {
@@ -147,9 +140,9 @@ public class QbitOpRage extends Tele {
     public void stopTele() {
         turret.limey.stop();
     }
-    @TeleOp(name = "BlueTeleOpRage", group = "TeleOp")
-    public static class BlueTeleOp2 extends QbitOpRage {{fieldSide = FieldSide.BLUE; }}
-
-    @TeleOp(name = "RedTeleOpRage", group = "TeleOp")
-    public static class RedTeleOp2 extends QbitOpRage {{fieldSide = FieldSide.RED; }}
+//    @TeleOp(name = "BlueTeleOpRage", group = "TeleOp")
+//    public static class BlueTeleOp2 extends QbitOpRage {{fieldSide = FieldSide.BLUE; }}
+//
+//    @TeleOp(name = "RedTeleOpRage", group = "TeleOp")
+//    public static class RedTeleOp2 extends QbitOpRage {{fieldSide = FieldSide.RED; }}
 }

@@ -1,6 +1,5 @@
 package pedroPathing;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
 import static pedroPathing.QAuto.PathState.*; // Imports all states cleanly
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -17,17 +16,14 @@ import com.pedropathing.util.Timer;
 import global.Initializer;
 import robotparts.hardware.Turret;
 
-import static robotparts.RobotConfig.intake;
 import static robotparts.RobotConfig.turret;
-import static teleop.TeleChain.Intake;
-import static teleop.TeleChain.ShootAuto;
-import static teleop.opmodes.QbitOp.isTurret23Mode;
-import static teleop.opmodes.QbitOp.isTurretTargeting;
-import static teleop.opmodes.QbitOp.oldTarget;
-import static teleop.opmodes.QbitOp.shooterTarget;
-import static teleop.opmodes.QbitOp.turnError;
+import static teleop.unused.QbitOp.isTurret23Mode;
+import static teleop.unused.QbitOp.isTurretTargeting;
+import static teleop.unused.QbitOp.oldTarget;
+import static teleop.unused.QbitOp.shooterTarget;
+import static teleop.unused.QbitOp.turnError;
 
-@Autonomous(name = "QAuto", group = "Autonomous")
+//@Autonomous(name = "QAuto", group = "Autonomous")
 @Configurable
 public class QAuto extends OpMode implements Initializer {
     private TelemetryManager panelsTelemetry;

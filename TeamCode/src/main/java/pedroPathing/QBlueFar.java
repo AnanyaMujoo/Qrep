@@ -1,21 +1,18 @@
 package pedroPathing;
 
 import static chains.StageBuilder.stage;
-import static robotparts.RobotConfig.drive;
 import static robotparts.RobotConfig.intake;
 import static robotparts.RobotConfig.turret;
 
 import com.bylazar.configurables.annotations.Configurable;
+import com.pedropathing.control.FilteredPIDFCoefficients;
+import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.follower.FollowerConstants;
+import com.pedropathing.ftc.FollowerBuilder;
 import com.pedropathing.geometry.BezierLine;
-import com.pedropathing.geometry.BezierPoint;
 import com.pedropathing.geometry.Pose;
-import com.pedropathing.math.MathFunctions;
-import com.pedropathing.math.Vector;
 import com.pedropathing.paths.PathChain;
-import com.pedropathing.paths.PathPoint;
-import com.pedropathing.paths.callbacks.PathCallback;
-import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import java.util.ArrayList;
@@ -26,13 +23,14 @@ import auto.Auto;
 import chains.Chain;
 import chains.ChainMaker;
 
-//@Autonomous(name = "QAutoTest2", group = "Autonomous")
+@Autonomous(name = "QBlueFarShooting", group = "Autonomous")
 @Configurable
-public class QTest2 extends Auto {
+public class QBlueFar extends Auto {
 
 
 
     public Follower follower;
+    public Follower followerBoosted;
     public ArrayList<PathChain> paths = new ArrayList<>();
 
 
@@ -53,6 +51,7 @@ public class QTest2 extends Auto {
 
     public enum PathType {
             PATH,
+            PATH_BOOSTED,
             CHAIN,
             CONCURRENT_CHAIN
     }
@@ -80,6 +79,19 @@ public class QTest2 extends Auto {
         pathTypes.add(PathType.PATH);
     }
 
+    public void addLineBoost(double x, double y, double h1, double h2){
+        paths.add(followerBoosted.pathBuilder()
+                .addPath(new BezierLine(lastPose, new Pose(x, y)))
+                .setLinearHeadingInterpolation(Math.toRadians(h1), Math.toRadians(h2))
+                .build());
+        lastPose = new Pose(x,y);
+        lastHeading = Math.toRadians(
+                h2);
+
+        chains.add(EMPTY_CHAIN);
+        pathTypes.add(PathType.PATH_BOOSTED);
+    }
+
 
     public void addChain(ChainMaker chain){
         ChainMaker newChain = () -> new Chain(chain.get().getStages()).add(stage(() -> isChainRunning.set(false)));
@@ -95,8 +107,8 @@ public class QTest2 extends Auto {
     }
 
 
-    public static final double SHOOT_1 = 2500;
-    public static final double SHOOT_23 = 3000;
+    public static final double SHOOT_1 = 3540;
+    public static final double SHOOT_23 = 1180+2500;
 
     ChainMaker SpinUpQ = () -> new Chain(
             stage(() -> shooterTarget.set(SHOOT_1))
@@ -105,7 +117,10 @@ public class QTest2 extends Auto {
             stage(() -> shooterTarget.set(SHOOT_23)),
             stage(intake, () -> intake.intakeAndFeed(1), 1)
     );
-
+    ChainMaker IntakeQ1 = () -> new Chain(
+            stage(intake, intake::lock, 0.1),
+            stage(intake, () -> intake.intakeAndFeed(0.7), 2)
+    );
     ChainMaker ShootSecondQ = () -> new Chain(
             stage(intake, intake.setFeedTargetRelative(-240, 0.4), () -> !intake.feeder.isMotorAtTarget()),
             stage(intake, intake::unlock, 0.2),
@@ -114,80 +129,59 @@ public class QTest2 extends Auto {
             stage(intake, () -> intake.intakeAndFeed(1), 1)
     );
 
-    ChainMaker IntakeFinAndSpinUpQ = () -> new Chain(
-            stage(() -> shooterTarget.set(SHOOT_1)),
-            stage(intake, () -> intake.intakeAndFeed(1), 1)
+    ChainMaker IntakeQ = () -> new Chain(
+            stage(intake, intake::lock),
+            stage(intake, () -> intake.intakeAndFeed(0.7), 2)
     );
-
-//    ChainMaker IntakeQ = () -> new Chain(
-//            stage(intake, intake::lock),
-//            stage(intake, drive, () -> {
-//                intake.intakeAndFeed(1);
-//                drive.move(0.7, 0, 0);
-//            }, () -> {
-//                updateFollowerSus(follower);
-//            }, 0.7)
-//    );
-//    ChainMaker IntakeFinQ = () -> new Chain(
-//            stage(intake, () -> intake.intakeAndFeed(1), 1)
-//    );
 
     ChainMaker IntakeAndSpinUpQ = () -> new Chain(
             stage(intake, intake::lock),
-            stage(intake, () -> intake.intakeAndFeed(1), 2),
+            stage(intake, () -> intake.intakeAndFeed(1 ), 2),
             stage(() -> shooterTarget.set(SHOOT_1))
     );
-
-
-    ChainMaker IntakeQ = () -> new Chain(
-            stage(intake, intake::lock),
-            stage(intake, drive, () -> {
-                intake.intakeAndFeed(1);
-                drive.move(0.7, 0, 0);
-            }, () -> {
-                updateFollowerSus(follower);
-            }, 0.7)
+ChainMaker Lock= () -> new Chain(
+        stage(intake, intake::lock)
+);
+    ChainMaker Wait = () -> new Chain(
+            stage(() -> {}, 0.25)
     );
+
+    public static FollowerConstants followerConstants2 = new FollowerConstants()
+            .mass(12.55)
+            .forwardZeroPowerAcceleration(-43.8014)
+            .lateralZeroPowerAcceleration(-74.98348806)
+            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.001, 0.0,0.00, 0.00, 0.2))
+            .translationalPIDFCoefficients(new PIDFCoefficients(0.0006, 0.0,0.00, 0.13));
+
+
+
 
 
 
     @Override
     public void initAuto() {
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(-56.5, -46.5, Math.toRadians(225)));
+        followerBoosted = new FollowerBuilder(followerConstants2, hardwareMap)
+                .pinpointLocalizer(Constants.localizerConstants)
+                .pathConstraints(Constants.pathConstraints)
+                .mecanumDrivetrain(Constants.driveConstants)
+                .build();
+        follower.setStartingPose(new Pose(0, 0, Math.toRadians(0)));
+        followerBoosted.setStartingPose(new Pose(0, 0, Math.toRadians(0)));
+
         paths = new ArrayList<>();
-        lastHeading = Math.toRadians(225);
-        lastPose = new Pose(-56.5, -46.5, Math.toRadians(225));
-        currentIndex = 0;
-        pathTypes = new ArrayList<>();
-        chains = new ArrayList<>();
+        lastHeading = Math.toRadians(0);
         turret.shooter.setPIDF(25, 0, 0.00000, 13.5);
         intake.unlock();
         isChainRunning.set(false);
-
-
+        turret.turret.setTarget(20, 0.5);
         addConcurrentChain(SpinUpQ);
-        addLine(-24,-24,225,225);
+        addLine(15,0,0,0);
         addChain(ShootFirstQ);
-        addLine(-14, -24, 270,270);
-        addChain(IntakeQ);
-        addConcurrentChain(IntakeFinAndSpinUpQ);
-        addLine(-7, -46, 180,180);
-        addConcurrentChain(SpinUpQ);
-        addLine(-7, -58, 180,180);
-        addLine(-24,-24,225,225);
-        addChain(ShootSecondQ);
-        addLine(11,-24,225,270);
-        addChain(IntakeQ);
-        addConcurrentChain(IntakeFinAndSpinUpQ);
-        addLine(-24,-24,270,225);
-        addChain(ShootSecondQ);
-        addLine(33,-14,270,270);
-        addChain(IntakeQ);
-        addConcurrentChain(IntakeFinAndSpinUpQ);
-        addLine(-24,-24,270,225);
-        addChain(ShootSecondQ);
-        addLine(-36,0,270,225);
+        addLine(15,-20,0,0);
+        turret.turret.setTarget(0, 0.5);
+
+
     }
 
 
@@ -204,23 +198,26 @@ public class QTest2 extends Auto {
         }
     }
 
-
-    public void updateFollowerSus(Follower follower){
-        follower.getPoseHistory().update();
-        follower.updatePose();
-    }
-
     @Override
     public void runAuto() {
-        while (opModeIsActive() && pathTypes.size() > currentIndex) {
-            PathType currentPathType = pathTypes.get(currentIndex);
-            if(currentPathType.equals(PathType.PATH)) {
-                PathChain current = paths.get(currentIndex);
-                follower.followPath(current);
+        while (opModeIsActive()) {
 
-                while (opModeIsActive() && follower.isBusy()) {
-                    follower.update();
-                    update();
+            PathType currentPathType = pathTypes.get(currentIndex);
+
+            if(currentPathType.equals(PathType.PATH) || currentPathType.equals(PathType.PATH_BOOSTED)) {
+                PathChain current = paths.get(currentIndex);
+                if(currentPathType.equals(PathType.PATH)) {
+                    follower.followPath(current);
+                    while (opModeIsActive() && follower.isBusy()) {
+                        follower.update();
+                        update();
+                    }
+                }else{
+                    followerBoosted.followPath(current);
+                    while (opModeIsActive() && followerBoosted.isBusy()) {
+                        followerBoosted.update();
+                        update();
+                    }
                 }
             } else if (currentPathType.equals(PathType.CHAIN)) {
                 ChainMaker currentChain = chains.get(currentIndex);

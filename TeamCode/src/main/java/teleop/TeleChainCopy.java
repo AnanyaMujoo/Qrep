@@ -10,9 +10,11 @@ import teleop.opmodes.QbitOpCopy;
 
 public interface TeleChainCopy {
 
-    ChainMaker IntakeAuto = () -> new Chain(
+    ChainMaker
+
+            IntakeAuto = () -> new Chain(
             stage(intake, intake::lock),
-            stage(intake, () -> intake.intakeAndFeed(1), intake.isNotDetected)
+            stage(intake, () -> intake.intakeAndFeed(0.7 ), intake.isNotDetected)
     );
 
     ChainMaker Shoot = () -> new Chain(
@@ -42,7 +44,7 @@ public interface TeleChainCopy {
 
     ChainMaker ShootFar = () -> new Chain(
             stage(intake, () -> QbitOpCopy.isTurret23Mode.set(false)),
-            stage(intake, intake.setFeedTargetRelative(-360, 1), () -> !intake.feeder.isMotorAtTarget()),
+            stage(intake, intake.setFeedTargetRelative(-360, 0.5), () -> !intake.feeder.isMotorAtTarget()),
             stage(intake, intake::unlock, 0.2),
             stage(intake, intake.resetFeedRunMode()),
             stage(intake, () -> {}, intake.isReady),
@@ -55,6 +57,44 @@ public interface TeleChainCopy {
             stage(intake, () -> intake.intakeAndFeed(0.5), 2.0),
             stage(intake, () -> QbitOpCopy.isTurretTargeting.set(false)),
             stage(intake, () -> QbitOpCopy.isTurret23Mode.set(false))
+    );
+
+    ChainMaker JustShootFar = () -> new Chain(
+            stage(intake, ()-> QbitOpCopy.isTurretManualFar.set(true)),
+            stage(intake, ()-> QbitOpCopy.isTurretTargeting.set(false)),
+            stage(intake, () -> QbitOpCopy.isTurret23ManualMode.set(false)),
+            stage(intake, intake.setFeedTargetRelative(-360, 0.5), () -> !intake.feeder.isMotorAtTarget()),
+            stage(intake, intake::unlock, 0.2),
+            stage(intake, intake.resetFeedRunMode()),
+            stage(intake, () -> {}, intake.isReady),
+
+            // Wait for QbitOpCopy.readyToShoot
+            stage(intake, () -> {}, () -> !QbitOpCopy.readyToShoot.get()),
+
+            stage(intake, () -> intake.intakeAndFeed(0.5), 0.5),
+            stage(intake, () -> QbitOpCopy.isTurret23ManualMode.set(true)),
+            stage(intake, () -> intake.intakeAndFeed(0.5), 2.0),
+            stage(intake, () -> QbitOpCopy.isTurretManualFar.set(false)),
+            stage(intake, () -> QbitOpCopy.isTurret23ManualMode.set(false))
+    );
+
+    ChainMaker JustShootClose = () -> new Chain(
+            stage(intake, ()-> QbitOpCopy.isTurretManualClose.set(true)),
+            stage(intake, ()-> QbitOpCopy.isTurretTargeting.set(false)),
+            stage(intake, () -> QbitOpCopy.isTurret23ManualMode.set(false)),
+            stage(intake, intake.setFeedTargetRelative(-360, 0.5), () -> !intake.feeder.isMotorAtTarget()),
+            stage(intake, intake::unlock, 0.2),
+            stage(intake, intake.resetFeedRunMode()),
+            stage(intake, () -> {}, intake.isReady),
+
+            // Wait for QbitOpCopy.readyToShoot
+            stage(intake, () -> {}, () -> !QbitOpCopy.readyToShoot.get()),
+
+            stage(intake, () -> intake.intakeAndFeed(0.5), 0.5),
+            stage(intake, () -> QbitOpCopy.isTurret23ManualMode.set(true)),
+            stage(intake, () -> intake.intakeAndFeed(0.5), 2.0),
+            stage(intake, () -> QbitOpCopy.isTurretManualClose.set(false)),
+            stage(intake, () -> QbitOpCopy.isTurret23ManualMode.set(false))
     );
 
     ChainMaker JustIntake = () -> new Chain(

@@ -40,26 +40,63 @@ public class QbitOpCopy extends Tele {
     public static AtomicReference<Double> turnError = new AtomicReference<>(0.0);
 
     public static AtomicBoolean isTurretTargeting = new AtomicBoolean(false);
+    public static AtomicBoolean isTurretManualFar = new AtomicBoolean(false);
+
     public static AtomicBoolean isAutoMode = new AtomicBoolean(false);
     public static AtomicBoolean isTurretPresetMode = new AtomicBoolean(false);
     public static AtomicBoolean isTurret23Mode = new AtomicBoolean(false);
     public static AtomicBoolean readyToShoot = new AtomicBoolean(false);
     public static AtomicBoolean farMode = new AtomicBoolean(true);
+    public static AtomicBoolean isTurret23ManualMode = new AtomicBoolean(false);
+    public static AtomicBoolean isTurretManualClose = new AtomicBoolean(false);
+
     public static boolean ScalerMode = false;
 
     // POSITIONS
-    public static final Pose2D RESET_POSE = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0);
-    public static final Pose2D SHOOT_POSE = new Pose2D(DistanceUnit.INCH, -60, 20, AngleUnit.DEGREES, 0);
-    public static final Pose2D INTAKE_POSE = new Pose2D(DistanceUnit.INCH, -20, 12, AngleUnit.DEGREES, 0);
+    public static Pose2D RESET_POSE = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0);
+    public static Pose2D SHOOT_POSE = new Pose2D(DistanceUnit.INCH, -60, 20, AngleUnit.DEGREES, 0);
+    public static Pose2D INTAKE_POSE = new Pose2D(DistanceUnit.INCH, -20, 12, AngleUnit.DEGREES, 0);
 
-    public static final double TURRET_SHOOT_ANGLE = -110.0;
+
+    public static double TURRET_SHOOT_ANGLE = -110.0;
     public int i = 0;
     public Timer timer = new Timer();
     public Follower follower;
 
     @Override
     public void initTele() {
+        if (fieldSide == FieldSide.RED){
+            RESET_POSE = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0);
+            SHOOT_POSE = new Pose2D(DistanceUnit.INCH, -60, -20, AngleUnit.DEGREES, 0);
+            INTAKE_POSE = new Pose2D(DistanceUnit.INCH, -20, -12, AngleUnit.DEGREES, 0);
+            TURRET_SHOOT_ANGLE = 110.0;
+
+
+        }
         i=0;
+
+
+        //GAMEPAD B
+
+        //manual intake
+        gpB.onClick(Button.Y, () ->{
+            TeleChainCopy.JustIntake.run();
+        });
+        //manual shoot
+        gpB.onClick(Button.X, TeleChainCopy.JustShootFar);
+
+        gpB.onClick(Button.A, TeleChainCopy.JustShootClose);
+
+        gpB.onClick(Button.DPAD_UP, () -> Turret.ANGLE_OFFSET += 0.5);
+        gpB.onClick(Button.DPAD_DOWN, () -> Turret.ANGLE_OFFSET -= 0.5);
+
+        gpB.onPress(Button.LEFT_TRIGGER, () -> {
+            switchToManual();
+            // Force motors to zero immediately just in case
+            drive.move(0, 0, 0);
+        });
+
+
         turret.shooter.setPIDF(25, 0, 0.00000, 13.5);
 //         PIDF(6, 0, 0, 14);
         // Use TeleChainCopy!
@@ -160,7 +197,7 @@ public class QbitOpCopy extends Tele {
         gpA.onClick(Button.DPAD_RIGHT, () -> Turret.SHOOT_OFFSET_23 += 20.0);
         gpA.onClick(Button.DPAD_LEFT, () -> Turret.SHOOT_OFFSET_23 -= 20.0);
         gpA.onClick(Button.RIGHT_TRIGGER, () -> ScalerMode = !ScalerMode);
-        gpB.onClick(Button.B, TeleChainCopy.JustIntake);
+
 
         readyToShoot.set(false);
         farMode.set(true);
@@ -210,7 +247,7 @@ public class QbitOpCopy extends Tele {
         }
 
         if (!isAutoMode.get()) {
-            drive.move(0.7 * gpA.ry, 0.7 * gpA.rx, 0.6 * gpA.lx);
+            drive.move(0.7 * gpA.ry, 0.7 * gpA.rx, 0.4 * gpA.lx);
         }
         drive.updateOdometry();
 
@@ -220,20 +257,21 @@ public class QbitOpCopy extends Tele {
         double rpmError = Math.abs(currentRPM - targetRPM);
         double angleErr = Math.abs(turnError.get());
 
-        display("--- DEBUG (COPY) ---", "");
-        display("RPM Error", String.format("%.1f (Need < 150)", rpmError));
-        display("Angle Error", String.format("%.2f (Need < 1.5)", angleErr));
-        display("READY TO BLITZ", readyToShoot.get() ? "!!! YES !!!" : "AIMING...");
-        display("isTurretTargeting", isTurretTargeting.get());
+//        display("--- DEBUG (COPY) ---", "");
+//        display("RPM Error", String.format("%.1f (Need < 150)", rpmError));
+//        display("Angle Error", String.format("%.2f (Need < 1.5)", angleErr));
+//        display("READY TO BLITZ", readyToShoot.get() ? "!!! YES !!!" : "AIMING...");
+//        display("isTurretTargeting", isTurretTargeting.get());
         display("Offset1", Turret.SHOOT_OFFSET_1);
         display("Offset23", Turret.SHOOT_OFFSET_23);
-        display("Distance", turret.getPoseY());
-        display("DistanceX", drive.getX());
-        display("TargetRPM", shooterTarget.get());
+        display("ANGLE OFFSET", Turret.ANGLE_OFFSET);
+//        display("Distance", turret.getPoseY());
+//        display("DistanceX", drive.getX());
+//        display("TargetRPM", shooterTarget.get());
 
 
         // --- TURRET LOGIC ---
-        if (isTurretTargeting.get() && drive.getX()<-40){
+        if ((isTurretTargeting.get() && drive.getX()<-40 ) && !isTurretManualFar.get() && !isTurretManualClose.get()){
             Pose pose = turret.getPoseWithLimey();
             double distance = pose.y;
             double distanceInches = turret.getDistanceInches();
@@ -277,7 +315,44 @@ public class QbitOpCopy extends Tele {
                 shooterTarget.set(2000.0);
                 readyToShoot.set(false);
             }
-        } else {
+        }
+
+       else if (isTurretManualFar.get()){
+
+                if (!isTurret23Mode.get()) {
+                        shooterTarget.set(turret.getClosestRPM1(107) + Turret.SHOOT_OFFSET_1);
+                    }
+                 else {
+                        shooterTarget.set(turret.getClosestRPM23(107) + Turret.SHOOT_OFFSET_23);
+                    }
+
+                farMode.set(true);
+
+                // --- READY CHECK ---
+                boolean isAngleGood = true;
+                boolean isRpmGood = rpmError < 150;
+                readyToShoot.set(isAngleGood && isRpmGood);
+
+        }
+
+        else if (isTurretManualClose.get()){
+
+            if (!isTurret23Mode.get()) {
+                shooterTarget.set(turret.getClosestRPM1(47) + Turret.SHOOT_OFFSET_1);
+            }
+            else {
+                shooterTarget.set(turret.getClosestRPM23(47) + Turret.SHOOT_OFFSET_23);
+            }
+
+            farMode.set(false);
+
+            // --- READY CHECK ---
+            boolean isAngleGood = true;
+            boolean isRpmGood = rpmError < 150;
+            readyToShoot.set(isAngleGood && isRpmGood);
+
+        }
+        else {
             if (!isTurretPresetMode.get()) {
                 turret.turn(0.0);
                 shooterTarget.set(0.0);
@@ -285,7 +360,6 @@ public class QbitOpCopy extends Tele {
                 readyToShoot.set(false);
             }
         }
-
         double st = shooterTarget.get();
         if (st != oldTarget.get()) {
             if (st != 0) {
