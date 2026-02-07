@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-@Autonomous(name = "QAutoTest", group = "Autonomous")
+@Autonomous(name = "QBlue", group = "Autonomous")
 @Configurable
 public class QBlue extends Auto {
 
@@ -128,15 +128,17 @@ public class QBlue extends Auto {
 
     ChainMaker IntakeQ = () -> new Chain(
             stage(intake, intake::lock),
-            stage(intake, () -> intake.intakeAndFeed(1), 2)
+            stage(intake, () -> intake.intakeAndFeed(0.7), 2)
     );
 
     ChainMaker IntakeAndSpinUpQ = () -> new Chain(
             stage(intake, intake::lock),
-            stage(intake, () -> intake.intakeAndFeed(1), 2),
+            stage(intake, () -> intake.intakeAndFeed(1 ), 2),
             stage(() -> shooterTarget.set(SHOOT_1))
     );
-
+ChainMaker Lock= () -> new Chain(
+        stage(intake, intake::lock)
+);
     ChainMaker Wait = () -> new Chain(
             stage(() -> {}, 0.25)
     );
@@ -146,7 +148,7 @@ public class QBlue extends Auto {
             .forwardZeroPowerAcceleration(-43.8014)
             .lateralZeroPowerAcceleration(-74.98348806)
             .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.001, 0.0,0.00, 0.00, 0.2))
-            .translationalPIDFCoefficients(new PIDFCoefficients(0.001, 0.0,0.00, 0.2));
+            .translationalPIDFCoefficients(new PIDFCoefficients(0.0006, 0.0,0.00, 0.13));
 
 
 
@@ -155,6 +157,7 @@ public class QBlue extends Auto {
 
     @Override
     public void initAuto() {
+        intake.unlock();
         follower = Constants.createFollower(hardwareMap);
         followerBoosted = new FollowerBuilder(followerConstants2, hardwareMap)
                 .pinpointLocalizer(Constants.localizerConstants)

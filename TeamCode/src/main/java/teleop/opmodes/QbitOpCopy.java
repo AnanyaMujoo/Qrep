@@ -49,18 +49,19 @@ public class QbitOpCopy extends Tele {
 
     // POSITIONS
     public static final Pose2D RESET_POSE = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0);
-    public static final Pose2D SHOOT_POSE = new Pose2D(DistanceUnit.INCH, -60, 15, AngleUnit.DEGREES, 0);
+    public static final Pose2D SHOOT_POSE = new Pose2D(DistanceUnit.INCH, -60, 20, AngleUnit.DEGREES, 0);
     public static final Pose2D INTAKE_POSE = new Pose2D(DistanceUnit.INCH, -20, 12, AngleUnit.DEGREES, 0);
 
     public static final double TURRET_SHOOT_ANGLE = -110.0;
-
+    public int i = 0;
     public Timer timer = new Timer();
     public Follower follower;
 
     @Override
     public void initTele() {
+        i=0;
         turret.shooter.setPIDF(25, 0, 0.00000, 13.5);
-
+//         PIDF(6, 0, 0, 14);
         // Use TeleChainCopy!
         gpA.onClick(Button.Y, TeleChainCopy.IntakeAuto);
 
@@ -103,37 +104,54 @@ public class QbitOpCopy extends Tele {
                     RESET_POSE.getHeading(AngleUnit.RADIANS)));
         });
         gpA.onClick(Button.RIGHT_BUMPER, () -> {
-            switchToAuto();
-            isTurretPresetMode.set(true);
-            turret.turret.setTarget(TURRET_SHOOT_ANGLE, 1.0);
+            i+=1;
+            if(i==1) {
+                switchToAuto();
+                isTurretPresetMode.set(true);
+                turret.turret.setTarget(TURRET_SHOOT_ANGLE, 1.0);
 
-            Pose2D currentPosition = drive.pinpoint.getPosition();
-            double finalAngle = SHOOT_POSE.getHeading(AngleUnit.RADIANS);
+                Pose2D currentPosition = drive.pinpoint.getPosition();
+                double finalAngle = SHOOT_POSE.getHeading(AngleUnit.RADIANS);
 
-            follower.followPath(follower.pathBuilder()
-                    .addPath(new BezierLine(
-                            new com.pedropathing.geometry.Pose(currentPosition.getX(DistanceUnit.INCH), currentPosition.getY(DistanceUnit.INCH), currentPosition.getHeading(AngleUnit.RADIANS)),
-                            new com.pedropathing.geometry.Pose(SHOOT_POSE.getX(DistanceUnit.INCH), SHOOT_POSE.getY(DistanceUnit.INCH), finalAngle)
-                    ))
-                    .setLinearHeadingInterpolation(currentPosition.getHeading(AngleUnit.RADIANS), finalAngle)
-                    .build());
+                follower.followPath(follower.pathBuilder()
+                        .addPath(new BezierLine(
+                                new com.pedropathing.geometry.Pose(currentPosition.getX(DistanceUnit.INCH), currentPosition.getY(DistanceUnit.INCH), currentPosition.getHeading(AngleUnit.RADIANS)),
+                                new com.pedropathing.geometry.Pose(SHOOT_POSE.getX(DistanceUnit.INCH), SHOOT_POSE.getY(DistanceUnit.INCH), finalAngle)
+                        ))
+                        .setLinearHeadingInterpolation(currentPosition.getHeading(AngleUnit.RADIANS), finalAngle)
+                        .build());
+            }
+            else{
+                switchToAuto();
+                isTurretPresetMode.set(true);
+                Pose2D currentPosition = drive.pinpoint.getPosition();
+                double finalAngle = SHOOT_POSE.getHeading(AngleUnit.RADIANS);
+
+                follower.followPath(follower.pathBuilder()
+                        .addPath(new BezierLine(
+                                new com.pedropathing.geometry.Pose(currentPosition.getX(DistanceUnit.INCH), currentPosition.getY(DistanceUnit.INCH), currentPosition.getHeading(AngleUnit.RADIANS)),
+                                new com.pedropathing.geometry.Pose(SHOOT_POSE.getX(DistanceUnit.INCH), SHOOT_POSE.getY(DistanceUnit.INCH), finalAngle)
+                        ))
+                        .setLinearHeadingInterpolation(currentPosition.getHeading(AngleUnit.RADIANS), finalAngle)
+                        .build());
+            }
         }
         );
         gpA.onClick(Button.LEFT_BUMPER, () -> {
             switchToAuto();
-            isTurretPresetMode.set(true);
+//            isTurretPresetMode.set(true);
             isTurretTargeting.set(false);
-            turret.turret.setTarget(TURRET_SHOOT_ANGLE, 1.0);
+//            turret.turret.setTarget(TURRET_SHOOT_ANGLE, 1.0);
 
             Pose2D currentPosition = drive.pinpoint.getPosition();
             double finalAngle = SHOOT_POSE.getHeading(AngleUnit.RADIANS);
 
             follower.followPath(follower.pathBuilder()
                     .addPath(new BezierLine(
-                            new com.pedropathing.geometry.Pose(currentPosition.getX(DistanceUnit.INCH), currentPosition.getY(DistanceUnit.INCH), currentPosition.getHeading(AngleUnit.RADIANS)),
-                            new com.pedropathing.geometry.Pose(INTAKE_POSE.getX(DistanceUnit.INCH), INTAKE_POSE.getY(DistanceUnit.INCH), finalAngle)
+                            new com.pedropathing.geometry.Pose(currentPosition.getX(DistanceUnit.INCH), currentPosition.getY(DistanceUnit.INCH), finalAngle),
+                            new com.pedropathing.geometry.Pose(INTAKE_POSE.getX(DistanceUnit.INCH), INTAKE_POSE.getY(DistanceUnit.INCH),finalAngle)
                     ))
-                    .setLinearHeadingInterpolation(currentPosition.getHeading(AngleUnit.RADIANS), finalAngle)
+                    .setLinearHeadingInterpolation(currentPosition.getHeading(AngleUnit.RADIANS),finalAngle )
                     .build());
         });
 
@@ -210,12 +228,12 @@ public class QbitOpCopy extends Tele {
         display("Offset1", Turret.SHOOT_OFFSET_1);
         display("Offset23", Turret.SHOOT_OFFSET_23);
         display("Distance", turret.getPoseY());
-
+        display("DistanceX", drive.getX());
         display("TargetRPM", shooterTarget.get());
 
 
         // --- TURRET LOGIC ---
-        if (isTurretTargeting.get()) {
+        if (isTurretTargeting.get() && drive.getX()<-40){
             Pose pose = turret.getPoseWithLimey();
             double distance = pose.y;
             double distanceInches = turret.getDistanceInches();
@@ -229,8 +247,8 @@ public class QbitOpCopy extends Tele {
                 turnError.set(error);
 
                 if (timer.seconds() > 0.5 && Math.abs(error) > 0.5) {
-                    double currentPos = turret.turret.getPosition();
-                    turret.turret.setTarget(currentPos - error, 0.2);
+                    turret.turret.softResetEncoder();
+                    turret.turret.setTarget(-error, 0.1);
                     timer.reset();
                 }
 
