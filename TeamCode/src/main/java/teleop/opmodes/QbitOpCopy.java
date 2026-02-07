@@ -67,8 +67,8 @@ public class QbitOpCopy extends Tele {
     public void initTele() {
         if (fieldSide == FieldSide.RED){
             RESET_POSE = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0);
-            SHOOT_POSE = new Pose2D(DistanceUnit.INCH, -60, -20, AngleUnit.DEGREES, 0);
-            INTAKE_POSE = new Pose2D(DistanceUnit.INCH, -20, -12, AngleUnit.DEGREES, 0);
+            SHOOT_POSE = new Pose2D(DistanceUnit.INCH, -60, -18, AngleUnit.DEGREES, 0);
+            INTAKE_POSE = new Pose2D(DistanceUnit.INCH, -15, -12, AngleUnit.DEGREES, 0);
             TURRET_SHOOT_ANGLE = 110.0;
 
 
@@ -247,7 +247,7 @@ public class QbitOpCopy extends Tele {
         }
 
         if (!isAutoMode.get()) {
-            drive.move(0.7 * gpA.ry, 0.7 * gpA.rx, 0.4 * gpA.lx);
+            drive.move(0.7 * gpB.ry, 0.7 * gpB.rx, 0.4 * gpB.lx);
         }
         drive.updateOdometry();
 

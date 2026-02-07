@@ -112,7 +112,7 @@ public class Turret extends RobotPart {
             }
             else{
 
-                    angle = llResult.getTx()+5.5+ANGLE_OFFSET;
+                    angle = llResult.getTx()+2.5+ANGLE_OFFSET;
 
 
             }

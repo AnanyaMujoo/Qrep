@@ -108,7 +108,7 @@ public class QBlueFar extends Auto {
 
 
     public static final double SHOOT_1 = 3540;
-    public static final double SHOOT_23 = 1180+2500;
+    public static final double SHOOT_23 = 3750;
 
     ChainMaker SpinUpQ = () -> new Chain(
             stage(() -> shooterTarget.set(SHOOT_1))
@@ -116,6 +116,9 @@ public class QBlueFar extends Auto {
     ChainMaker ShootFirstQ = () -> new Chain(
             stage(() -> shooterTarget.set(SHOOT_23)),
             stage(intake, () -> intake.intakeAndFeed(1), 1)
+    );
+    ChainMaker ShootStop = () -> new Chain(
+            stage(() -> shooterTarget.set(0.0),1)
     );
     ChainMaker IntakeQ1 = () -> new Chain(
             stage(intake, intake::lock, 0.1),
@@ -139,9 +142,17 @@ public class QBlueFar extends Auto {
             stage(intake, () -> intake.intakeAndFeed(1 ), 2),
             stage(() -> shooterTarget.set(SHOOT_1))
     );
-ChainMaker Lock= () -> new Chain(
-        stage(intake, intake::lock)
+ChainMaker TurnShooter= () -> new Chain(
+        stage(turret, ()->{
+            turret.turret.setTarget(-31, 1.0);
+        },1)
 );
+
+    ChainMaker TurnShooterBack= () -> new Chain(
+            stage(turret, ()->{
+                turret.turret.setTarget(0, 1.0);
+            },1)
+    );
     ChainMaker Wait = () -> new Chain(
             stage(() -> {}, 0.25)
     );
@@ -174,12 +185,15 @@ ChainMaker Lock= () -> new Chain(
         turret.shooter.setPIDF(25, 0, 0.00000, 13.5);
         intake.unlock();
         isChainRunning.set(false);
-        turret.turret.setTarget(20, 0.5);
-        addConcurrentChain(SpinUpQ);
+        addChain(TurnShooter);
+
+        addChain(SpinUpQ);
         addLine(15,0,0,0);
         addChain(ShootFirstQ);
-        addLine(15,-20,0,0);
-        turret.turret.setTarget(0, 0.5);
+        addChain(TurnShooterBack);
+        addLine(1,-20,0,0);
+
+        addChain(ShootStop);
 
 
     }

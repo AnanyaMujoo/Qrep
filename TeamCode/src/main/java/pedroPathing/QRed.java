@@ -115,11 +115,11 @@ public class QRed extends Auto {
     );
     ChainMaker ShootFirstQ = () -> new Chain(
             stage(() -> shooterTarget.set(SHOOT_23)),
-            stage(intake, () -> intake.intakeAndFeed(1), 1)
+            stage(intake, () -> intake.intakeAndFeed(1), 0.9)
     );
 
     ChainMaker ShootSecondQ = () -> new Chain(
-            stage(intake, intake.setFeedTargetRelative(-360, 1), () -> !intake.feeder.isMotorAtTarget()),
+            stage(intake, intake.setFeedTargetRelative(-360, 0.6),0.6),
             stage(intake, intake::unlock, 0.2),
             stage(intake, intake.resetFeedRunMode()),
             stage(() -> shooterTarget.set(SHOOT_23)),
@@ -128,19 +128,21 @@ public class QRed extends Auto {
 
     ChainMaker IntakeQ = () -> new Chain(
             stage(intake, intake::lock),
-            stage(intake, () -> intake.intakeAndFeed(1), 2)
+            stage(intake, () -> intake.intakeAndFeed(0.7), 2)
     );
 
     ChainMaker IntakeAndSpinUpQ = () -> new Chain(
             stage(intake, intake::lock),
-            stage(intake, () -> intake.intakeAndFeed(1), 2),
+            stage(intake, () -> intake.intakeAndFeed(0.7), 2),
             stage(() -> shooterTarget.set(SHOOT_1))
     );
 
     ChainMaker Wait = () -> new Chain(
+            stage(() -> {}, 0.125)
+    );
+    ChainMaker WaitForShoot = () -> new Chain(
             stage(() -> {}, 0.25)
     );
-
     public static FollowerConstants followerConstants2 = new FollowerConstants()
             .mass(12.55)
             .forwardZeroPowerAcceleration(-43.8014)
@@ -176,6 +178,8 @@ public class QRed extends Auto {
         isChainRunning.set(false);
         addConcurrentChain(SpinUpQ);
         addLine(-24,24,135,135);
+        addChain(WaitForShoot);
+        addChain(WaitForShoot);
         addChain(ShootFirstQ);
         addLine(-14, 24, 90,90);
         addConcurrentChain(IntakeQ);
@@ -194,9 +198,9 @@ public class QRed extends Auto {
         addLine(33,24,90,90);
         addConcurrentChain(IntakeAndSpinUpQ);
         addLineBoost(33,60,90,90);
-        addLine(-24,24,90,135);
+        addLine(-40,14,90,120);
         addChain(ShootSecondQ);
-        addLine(-45,24,90,135);
+        addLine(-40,14,90,135);
 
 
     }
