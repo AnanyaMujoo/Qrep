@@ -65,11 +65,22 @@ public class QbitOpCopy extends Tele {
 
     @Override
     public void initTele() {
+        isTurretTargeting.set(false);
+        isTurretManualFar.set(false);
+        isTurretManualClose.set(false);
         if (fieldSide == FieldSide.RED){
             RESET_POSE = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0);
             SHOOT_POSE = new Pose2D(DistanceUnit.INCH, -60, -18, AngleUnit.DEGREES, 0);
             INTAKE_POSE = new Pose2D(DistanceUnit.INCH, -15, -12, AngleUnit.DEGREES, 0);
             TURRET_SHOOT_ANGLE = 110.0;
+
+
+        }
+        if (fieldSide == FieldSide.BLUE){
+            RESET_POSE = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0);
+            SHOOT_POSE = new Pose2D(DistanceUnit.INCH, -60, 20, AngleUnit.DEGREES, 0);
+            INTAKE_POSE = new Pose2D(DistanceUnit.INCH, -20, 12, AngleUnit.DEGREES, 0);
+            TURRET_SHOOT_ANGLE = -110.0;
 
 
         }
@@ -87,8 +98,8 @@ public class QbitOpCopy extends Tele {
 
         gpB.onClick(Button.A, TeleChainCopy.JustShootClose);
 
-        gpB.onClick(Button.DPAD_UP, () -> Turret.ANGLE_OFFSET += 0.5);
-        gpB.onClick(Button.DPAD_DOWN, () -> Turret.ANGLE_OFFSET -= 0.5);
+        gpA.onClick(Button.DPAD_UP, () -> Turret.ANGLE_OFFSET += 0.5);
+        gpA.onClick(Button.DPAD_DOWN, () -> Turret.ANGLE_OFFSET -= 0.5);
 
         gpB.onPress(Button.LEFT_TRIGGER, () -> {
             switchToManual();
@@ -143,6 +154,9 @@ public class QbitOpCopy extends Tele {
         gpA.onClick(Button.RIGHT_BUMPER, () -> {
             i+=1;
             if(i==1) {
+                isTurretManualFar.set(false);
+                isTurretManualClose.set(false);
+                isTurretTargeting.set(false);
                 switchToAuto();
                 isTurretPresetMode.set(true);
                 turret.turret.setTarget(TURRET_SHOOT_ANGLE, 1.0);
@@ -161,6 +175,8 @@ public class QbitOpCopy extends Tele {
             else{
                 switchToAuto();
                 isTurretPresetMode.set(true);
+
+
                 Pose2D currentPosition = drive.pinpoint.getPosition();
                 double finalAngle = SHOOT_POSE.getHeading(AngleUnit.RADIANS);
 
@@ -178,6 +194,8 @@ public class QbitOpCopy extends Tele {
             switchToAuto();
 //            isTurretPresetMode.set(true);
             isTurretTargeting.set(false);
+            isTurretManualFar.set(false);
+            isTurretManualClose.set(false);
 //            turret.turret.setTarget(TURRET_SHOOT_ANGLE, 1.0);
 
             Pose2D currentPosition = drive.pinpoint.getPosition();
@@ -192,10 +210,10 @@ public class QbitOpCopy extends Tele {
                     .build());
         });
 
-        gpA.onClick(Button.DPAD_UP, () -> Turret.SHOOT_OFFSET_1 += 20.0);
-        gpA.onClick(Button.DPAD_DOWN, () -> Turret.SHOOT_OFFSET_1 -= 20.0);
-        gpA.onClick(Button.DPAD_RIGHT, () -> Turret.SHOOT_OFFSET_23 += 20.0);
-        gpA.onClick(Button.DPAD_LEFT, () -> Turret.SHOOT_OFFSET_23 -= 20.0);
+        gpB.onClick(Button.DPAD_UP, () -> Turret.SHOOT_OFFSET_1 += 20.0);
+        gpB.onClick(Button.DPAD_DOWN, () -> Turret.SHOOT_OFFSET_1 -= 20.0);
+        gpB.onClick(Button.DPAD_RIGHT, () -> Turret.SHOOT_OFFSET_23 += 20.0);
+        gpB.onClick(Button.DPAD_LEFT, () -> Turret.SHOOT_OFFSET_23 -= 20.0);
         gpA.onClick(Button.RIGHT_TRIGGER, () -> ScalerMode = !ScalerMode);
 
 
@@ -247,7 +265,7 @@ public class QbitOpCopy extends Tele {
         }
 
         if (!isAutoMode.get()) {
-            drive.move(0.7 * gpB.ry, 0.7 * gpB.rx, 0.4 * gpB.lx);
+            drive.move(0.8 * gpA.ry, 0.8 * gpA.rx, 0.6 * gpA.lx);
         }
         drive.updateOdometry();
 

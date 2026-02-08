@@ -122,7 +122,7 @@ public class QBlue extends Auto {
             stage(intake, () -> intake.intakeAndFeed(0.7), 2)
     );
     ChainMaker ShootSecondQ = () -> new Chain(
-            stage(intake, intake.setFeedTargetRelative(-240, 0.4), () -> !intake.feeder.isMotorAtTarget()),
+            stage(intake, intake.setFeedTargetRelative(-300, 0.6), () -> !intake.feeder.isMotorAtTarget()),
             stage(intake, intake::unlock, 0.2),
             stage(intake, intake.resetFeedRunMode()),
             stage(() -> shooterTarget.set(SHOOT_23)),
@@ -136,7 +136,7 @@ public class QBlue extends Auto {
 
     ChainMaker IntakeAndSpinUpQ = () -> new Chain(
             stage(intake, intake::lock),
-            stage(intake, () -> intake.intakeAndFeed(1 ), 2),
+            stage(intake, () -> intake.intakeAndFeed(0.7), 2),
             stage(() -> shooterTarget.set(SHOOT_1))
     );
 ChainMaker Lock= () -> new Chain(
@@ -197,7 +197,7 @@ ChainMaker Lock= () -> new Chain(
         addLine(33,-24,270,270);
         addConcurrentChain(IntakeAndSpinUpQ);
         addLineBoost(33,-60,270,270);
-        addLine(-24,-24,270,225);
+        addLine(-40,-14,270,254);
         addChain(ShootSecondQ);
         addLine(-45,-24,270,225);
 

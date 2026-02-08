@@ -10,18 +10,16 @@ import teleop.opmodes.QbitOpCopy;
 
 public interface TeleChainCopy {
 
-    ChainMaker
-
-            IntakeAuto = () -> new Chain(
+    ChainMaker IntakeAuto = () -> new Chain(
             stage(intake, intake::lock),
             stage(intake, () -> intake.intakeAndFeed(0.7 ), intake.isNotDetected)
     );
 
     ChainMaker Shoot = () -> new Chain(
-            // 1. Prepare
+            // 1. Prepare88
             stage(intake, () -> QbitOpCopy.isTurretTargeting.set(true)),
             stage(intake, () -> QbitOpCopy.isTurret23Mode.set(false)),
-            stage(intake, intake.setFeedTargetRelative(-380, 1), () -> !intake.feeder.isMotorAtTarget()),
+            stage(intake, intake.setFeedTargetRelative(-340, 1), () -> !intake.feeder.isMotorAtTarget()),
             stage(intake, intake::unlock, 0.2),
             stage(intake, intake.resetFeedRunMode()),
 
@@ -98,7 +96,7 @@ public interface TeleChainCopy {
     );
 
     ChainMaker JustIntake = () -> new Chain(
-            stage(intake, intake::unlock, 0.1),
+            stage(intake, intake::lock, 0.1),
             stage(intake, () -> intake.intakeAndFeed(1), 1)
     );
 }
